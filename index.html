@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NGOK Better schedule</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <h1 id="weekHeader">Расписание</h1>
+  <div id="yearContainer">
+    <p>Выберите свой курс:</p>
+    <select id="yearSelect">
+      <option value="null">Выберите вариант</option>
+      <option value="1 курс">Курс 1</option>
+      <option value="2 курс">Курс 2</option>
+      <option value="3 курс">Курс 3</option>
+      <option value="4 курс">Курс 4</option>
+    </select>
+  </div>
+
+  <div id="groupContainer" style="display: none;">
+    <p>Выберите свою группу:</p>
+    <select id="groupSelect">
+      <option value="null">Выберите вариант</option>
+    </select>
+  </div>
+
+  <div id="dateContainer" style="display: none;">
+    <p>Выберите дату:</p>
+    <select id="dateSelect">
+      <option value="null">Показать все</option>
+    </select>
+  </div>
+
+  <div id="schedule"></div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,19 +1,91 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #f5a623;
+  --background-color: #f4f7f6;
+  --text-color: #333;
+  --header-background-color: #2c3e50;
+  --footer-background-color: #34495e;
+  --link-color: #3498db;
+  --link-hover-color: #2980b9;
 }
 
-h1 {
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  padding: 0;
+}
+
+header {
+  background-color: var(--header-background-color);
+  padding: 20px;
   text-align: center;
-  margin-top: 20px;
+}
+
+header h1 {
+  font-size: 24px;
+  color: white;
+}
+
+header a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+header a:hover {
+  color: var(--link-hover-color);
+}
+
+main {
+  margin: 20px auto;
+  max-width: 600px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+footer {
+  margin-top: auto;
+  background-color: var(--footer-background-color);
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
+footer p {
+  margin: 5px 0;
+}
+
+footer a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: var(--link-hover-color);
 }
 
 #schedule {
-  margin: 20px auto;
-  width: 80%;
-  max-width: 800px;
+  margin-top: 20px;
 }
 
 table {
@@ -22,16 +94,35 @@ table {
 }
 
 td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px;
+  border: 1px solid #ccc;
   text-align: left;
-  vertical-align: top;
 }
 
-tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
+@media (max-width: 600px) {
+  select {
+    padding: 8px;
+    font-size: 14px;
+  }
 
-tr:hover {
-  background-color: #ddd;
+  main {
+    padding: 10px;
+    margin: 10px;
+  }
+
+  header h1 {
+    font-size: 20px;
+  }
+
+  footer {
+    padding: 5px;
+  }
+
+  footer p {
+    font-size: 14px;
+  }
+
+  footer a {
+    font-size: 14px;
+  }
 }

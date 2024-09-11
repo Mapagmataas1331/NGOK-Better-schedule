@@ -9,35 +9,48 @@
 </head>
 
 <body>
-  <h1 id="weekHeader">Расписание</h1>
-  <div id="yearContainer">
-    <p>Выберите свой курс:</p>
-    <select id="yearSelect">
-      <option value="null">Выберите вариант</option>
-      <option value="1 курс">Курс 1</option>
-      <option value="2 курс">Курс 2</option>
-      <option value="3 курс">Курс 3</option>
-      <option value="4 курс">Курс 4</option>
-    </select>
-  </div>
 
-  <div id="groupContainer" style="display: none;">
-    <p>Выберите свою группу:</p>
-    <select id="groupSelect">
-      <option value="null">Выберите вариант</option>
-    </select>
-  </div>
+  <header>
+    <h1><a href="https://docs.google.com/spreadsheets/d/1FiMov0r4UUDKT6A56NWMImpoUakDC2YDevgaOpJQ7Qc/">Расписание
+        НГОК,</a> только лучше!</h1>
+  </header>
 
-  <div id="dateContainer" style="display: none;">
-    <p>Выберите дату:</p>
-    <select id="dateSelect">
-      <option value="null">Показать все</option>
-    </select>
-  </div>
+  <main>
+    <div id="yearContainer">
+      <select id="yearSelect">
+        <option value="null">Выберите свой курс:</option>
+        <option value="1 курс">Курс 1</option>
+        <option value="2 курс">Курс 2</option>
+        <option value="3 курс">Курс 3</option>
+        <option value="4 курс">Курс 4</option>
+      </select>
+    </div>
 
-  <div id="schedule"></div>
+    <div id="groupContainer" style="display: none;">
+      <select id="groupSelect">
+        <option value="null">Выберите свою группу:</option>
+      </select>
+    </div>
 
-  <script src="script.js"></script>
+    <div id="dateContainer" style="display: none;">
+      <select id="dateSelect">
+        <option value="null">Показать неделю</option>
+      </select>
+    </div>
+
+    <div id="schedule" style="display: none;"></div>
+  </main>
+
+  <footer>
+    <p>© 2024 ma.cyou. Все права защищены.</p>
+    <p>
+      <a href="https://ma.cyou/">Сайт Автора</a> |
+      <a href="https://opencollege-nsk.ru/">Сайт НГОК'а</a> |
+      <a href="https://github.com/Mapagmataas1331/NGOK-Better-schedule">Исходный код на GitHub</a>
+    </p>
+  </footer>
+
+  <script src=" script.js"></script>
 </body>
 
 </html>

@@ -78,23 +78,25 @@ function buildSchedule(schedule, params, studyDates, curWeek, scheduleSpace) {
     .map((date) => {
       const dayOfWeek = getDayOfWeek(date);
       const isStudyDay = studyDates[date] !== undefined;
-      let tableRows = `<tr><td>${date}</td><td>${dayOfWeek}</td></tr>`;
+      let tableRows = `<tr class="schedule-header"><td>${date}</td><td>${dayOfWeek}</td></tr>`;
 
       if (isStudyDay) {
         for (let i = studyDates[date]; i < studyDates[date] + scheduleSpace; i++) {
           const discipline = schedule[i][params["Дисциплины"]];
           if (discipline) {
             tableRows += `
-            <tr><td>${schedule[i][params["Часы"]]}</td><td>${discipline}</td></tr>
-            <tr><td>${schedule[i][params["Преподаватели"]]}</td><td>${schedule[i][params["Ауд."]]}</td></tr>
-          `;
+              <tr><td class="time">${schedule[i][params["Часы"]]}</td><td class="discipline">${discipline}</td></tr>
+              <tr><td class="teacher">${schedule[i][params["Преподаватели"]]}</td><td class="auditorium">${
+              schedule[i][params["Ауд."]]
+            }</td></tr>
+            `;
           }
         }
       } else {
-        tableRows += "<tr><td>Выходной</td></tr>";
+        tableRows += "<tr><td colspan='2' class='no-classes'>Выходной</td></tr>";
       }
 
-      return `<table>${tableRows}</table><br/>`;
+      return `<table class="schedule-table">${tableRows}</table><br/>`;
     })
     .join("");
 

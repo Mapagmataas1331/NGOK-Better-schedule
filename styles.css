@@ -63,6 +63,58 @@ select {
   font-size: 16px;
 }
 
+#schedule {
+  margin-top: 20px;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.schedule-header td {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: bold;
+  padding: 10px;
+  text-align: center;
+}
+
+.schedule-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.schedule-table .time {
+  background-color: #f4f7f6;
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.schedule-table .discipline {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.schedule-table .teacher,
+.schedule-table .auditorium {
+  font-size: 14px;
+  color: var(--secondary-color);
+}
+
+.no-classes {
+  text-align: center;
+  color: var(--text-color);
+  font-style: italic;
+  background-color: #f4f7f6;
+}
+
 footer {
   margin-top: auto;
   background-color: var(--footer-background-color);
@@ -84,22 +136,11 @@ footer a:hover {
   color: var(--link-hover-color);
 }
 
-#schedule {
-  margin-top: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-
 @media (max-width: 600px) {
+  header h1 {
+      font-size: 20px;
+    }
+
   select {
     padding: 8px;
     font-size: 14px;
@@ -110,8 +151,14 @@ td {
     margin: 10px;
   }
 
-  header h1 {
-    font-size: 20px;
+  .schedule-table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .schedule-header td {
+    font-size: 16px;
+    padding: 8px;
   }
 
   footer {

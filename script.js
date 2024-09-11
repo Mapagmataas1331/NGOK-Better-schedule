@@ -1,21 +1,22 @@
+// Constants for API and sheet access
 const sheetId = "1FiMov0r4UUDKT6A56NWMImpoUakDC2YDevgaOpJQ7Qc";
 const apiKey = "AIzaSyAxU9vV25C6ylby6cg9BO3SLz7_7xj50wo";
 
 // DOM elements
-const yearContainer = document.getElementById("yearContainer");
-const yearSelect = document.getElementById("yearSelect");
-const groupContainer = document.getElementById("groupContainer");
-const groupSelect = document.getElementById("groupSelect");
-const dateContainer = document.getElementById("dateContainer");
-const dateSelect = document.getElementById("dateSelect");
-const scheduleDiv = document.getElementById("schedule");
+const elements = {
+  yearSelect: document.getElementById("yearSelect"),
+  groupSelect: document.getElementById("groupSelect"),
+  dateSelect: document.getElementById("dateSelect"),
+  scheduleDiv: document.getElementById("schedule"),
+  groupContainer: document.getElementById("groupContainer"),
+  dateContainer: document.getElementById("dateContainer"),
+};
 
-let todayDate = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
 let selectedSheet = null;
 let selectedGroup = null;
-let selectedDate = todayDate;
+let selectedDate = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-// Helper to build the API URL
+// Helper: Build the API URL
 function buildUrl(sheetName) {
   if (!sheetName) throw new Error("Курс не может быть пустым!");
   return `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(
@@ -23,11 +24,10 @@ function buildUrl(sheetName) {
   )}?key=${apiKey}`;
 }
 
-// Helper to get the week from a Monday
+// Helper: Get full week from a Monday date string
 function getFullWeek(mondayStr) {
   const [day, month, year] = mondayStr.split(".").map(Number);
   const monday = new Date(year, month - 1, day);
-
   return Array.from({ length: 7 }, (_, i) => {
     const date = new Date(monday);
     date.setDate(monday.getDate() + i);
@@ -35,15 +35,15 @@ function getFullWeek(mondayStr) {
   });
 }
 
-// Helper to get day of the week
+// Helper: Get day of the week for a date string
 function getDayOfWeek(dateStr) {
+  const daysOfWeek = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
   const [day, month, year] = dateStr.split(".").map(Number);
   const date = new Date(year, month - 1, day);
-  const daysOfWeek = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
   return daysOfWeek[date.getDay()] || "Неизвестный день!";
 }
 
-// Fetch data from the Google Sheets API
+// Fetch data from Google Sheets API
 async function fetchData(url) {
   try {
     const response = await fetch(url);
@@ -51,6 +51,7 @@ async function fetchData(url) {
     return await response.json();
   } catch (error) {
     console.error("Fetch error:", error.message);
+    elements.scheduleDiv.innerHTML = `<p>Ошибка загрузки данных: ${error.message}</p>`;
     return null;
   }
 }
@@ -60,151 +61,102 @@ function populateSelect(selectElement, data, defaultOption = "Выберите �
   selectElement.innerHTML = `<option value="null">${defaultOption}</option>`;
   Object.keys(data).forEach((key) => {
     const optionText = values ? data[key] : key;
-    selectElement.innerHTML += `<option value="${key}">${optionText}</option>`;
+    const option = new Option(optionText, key);
+    selectElement.add(option);
   });
 }
 
-// Build schedule from the data
+// Build schedule table dynamically
 function buildSchedule(schedule, params, studyDates, curWeek, scheduleSpace) {
-  scheduleDiv.innerHTML = (() => {
-    if (!schedule || Object.keys(schedule).length === 0) {
-      return "<p>Расписание пустое!</p>";
-    }
-
-    if (!params || Object.keys(params).length === 0) {
-      return "<p>Параметры не найдены!</p>";
-    }
-
-    if (!selectedGroup || selectedGroup.length === 0) {
-      return "<p>Группа не найдена!</p>";
-    }
-
-    if (selectedDate == "") {
-      return "<p>Дата не найдена!</p>";
-    }
-
-    let dates = [selectedDate];
-
-    if (selectedDate == null) {
-      dates = getFullWeek(curWeek);
-    }
-
-    let result = "";
-
-    for (let i = 0; i < dates.length; i++) {
-      result += "<table>";
-
-      result += "<tr>";
-      result += "<td>" + dates[i] + "</td>";
-      result += "<td>" + getDayOfWeek(dates[i]) + "</td>";
-      result += "</tr>";
-      if (!studyDates[dates[i]]) {
-        result += "<tr><td>Выходной</td></tr>";
-      } else {
-        for (let j = studyDates[dates[i]]; j < studyDates[dates[i]] + scheduleSpace; j++) {
-          if (schedule[j][params["Дисциплины"]] != "" && schedule[j][params["Дисциплины"]] != undefined) {
-            result += "<tr>";
-            result += "<td>" + schedule[j][params["Часы"]] + "</td>";
-            result += "<td>" + schedule[j][params["Дисциплины"]] + "</td>";
-            result += "</tr>";
-            result += "<tr>";
-            result += "<td>" + schedule[j][params["Преподаватели"]] + "</td>";
-            result += "<td>" + schedule[j][params["Ауд."]] + "</td>";
-            result += "</tr>";
-          }
-        }
-      }
-      // schedule.forEach((row, rowIndex) => {
-      //   if (rowIndex >= 2 && rowIndex <= 38) {
-      //     result += "<tr>";
-      //     row.forEach((cell, colIndex) => {
-      //       result += `<td>row${rowIndex} col${colIndex}: ${cell}</td>`;
-      //     });
-      //     result += "</tr>";
-      //   }
-      // });
-      result += "</table><br/>";
-    }
-
-    return result;
-  })();
-
-  scheduleDiv.style.display = "block";
-}
-
-// Main logic for handling schedule data and selections
-async function handleYearChange() {
-  selectedSheet = yearSelect.value;
-
-  if (selectedSheet === "null") {
-    selectedSheet = null;
-    groupContainer.style.display = "none";
-    dateContainer.style.display = "none";
-    scheduleDiv.style.display = "none";
+  if (!schedule || !params || !selectedGroup || selectedDate == "") {
+    elements.scheduleDiv.innerHTML = "<p>Некорректные данные!</p>";
     return;
   }
+
+  const dates = selectedDate ? [selectedDate] : getFullWeek(curWeek);
+  const scheduleTable = dates
+    .map((date) => {
+      const dayOfWeek = getDayOfWeek(date);
+      const isStudyDay = studyDates[date] !== undefined;
+      let tableRows = `<tr><td>${date}</td><td>${dayOfWeek}</td></tr>`;
+
+      if (isStudyDay) {
+        for (let i = studyDates[date]; i < studyDates[date] + scheduleSpace; i++) {
+          const discipline = schedule[i][params["Дисциплины"]];
+          if (discipline) {
+            tableRows += `
+            <tr><td>${schedule[i][params["Часы"]]}</td><td>${discipline}</td></tr>
+            <tr><td>${schedule[i][params["Преподаватели"]]}</td><td>${schedule[i][params["Ауд."]]}</td></tr>
+          `;
+          }
+        }
+      } else {
+        tableRows += "<tr><td>Выходной</td></tr>";
+      }
+
+      return `<table>${tableRows}</table><br/>`;
+    })
+    .join("");
+
+  elements.scheduleDiv.innerHTML = scheduleTable;
+  elements.scheduleDiv.style.display = "block";
+}
+
+// Main logic for year selection
+async function handleYearChange() {
+  selectedSheet = elements.yearSelect.value;
+  resetSelection(true);
+  if (selectedSheet == null) return;
 
   const url = buildUrl(selectedSheet);
   const data = await fetchData(url);
   if (!data || !data.values) {
-    scheduleDiv.innerHTML = "Нет данных для отображения.";
+    elements.scheduleDiv.innerHTML = "Нет данных для отображения.";
     return;
   }
 
   const schedule = data.values;
-  console.log("Полученные данные расписания:", schedule);
-
   const curWeek = schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)[0];
-
   const params = extractParams(schedule);
+
   if (!params["Дата"] || !params["Часы"]) {
     console.error("Не найдены все параметры!");
     return;
   }
 
   const timeIntervals = extractTimeIntervals(schedule, params);
-  const scheduleSpace = Object.keys(timeIntervals).length;
   const curGroups = extractGroups(schedule);
+  const scheduleSpace = Object.keys(timeIntervals).length;
 
-  populateSelect(groupSelect, curGroups, "Выберите свою группу:");
-  groupContainer.style.display = "block";
+  populateSelect(elements.groupSelect, curGroups, "Выберите свою группу:");
+  elements.groupContainer.style.display = "block";
 
   handleGroupChange(schedule, params, scheduleSpace, curGroups, curWeek);
 }
 
-function extractParams(schedule) {
-  return schedule[1].reduce((acc, cell, index) => {
-    if (cell) acc[cell] = index;
-    return acc;
-  }, {});
+// Reset selections
+function resetSelection(ifGroup = false) {
+  elements.scheduleDiv.style.display = "none";
+  if (selectedGroup == "null") {
+    selectedGroup = null;
+    selectedDate = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+    elements.dateContainer.style.display = "none";
+  }
+  if (ifGroup) {
+    selectedDate = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+    elements.dateContainer.style.display = "none";
+    selectedGroup = null;
+    elements.groupContainer.style.display = "none";
+    if (selectedSheet == "null") selectedSheet = null;
+  }
 }
 
-function extractTimeIntervals(schedule, params) {
-  return schedule.reduce((acc, row, index) => {
-    const cell = row[params["Часы"]];
-    if (acc[cell]) return acc;
-    if (index > 1 && cell && /\b(\d{2}\.\d{2}-\d{2}\.\d{2})\b/.test(cell)) acc[cell] = index;
-    return acc;
-  }, {});
-}
-
-function extractGroups(schedule) {
-  return schedule[0].reduce((acc, cell, index) => {
-    if (index !== 0 && cell) acc[cell] = index;
-    return acc;
-  }, {});
-}
-
+// Handle group change logic
 function handleGroupChange(schedule, params, scheduleSpace, curGroups, curWeek) {
-  groupSelect.addEventListener("change", () => {
-    selectedGroup = groupSelect.value;
-
-    if (selectedGroup === "null") {
-      selectedGroup = null;
-      dateContainer.style.display = "none";
-      scheduleDiv.style.display = "none";
-      return;
-    }
+  elements.groupSelect.addEventListener("change", () => {
+    selectedGroup = elements.groupSelect.value;
+    resetSelection();
+    if (selectedGroup == null) return;
 
     const updatedParams = extractUpdatedParams(schedule, curGroups);
     Object.assign(params, updatedParams);
@@ -213,17 +165,15 @@ function handleGroupChange(schedule, params, scheduleSpace, curGroups, curWeek) 
     const studyDates = filterStudyDates(schedule, allDates, scheduleSpace, params);
     const formattedDates = formatDates(allDates, studyDates);
 
-    populateSelect(dateSelect, formattedDates, "Показать неделю с " + curWeek, true);
-    if (Object.keys(allDates).includes(todayDate)) {
-      dateSelect.value = todayDate;
+    populateSelect(elements.dateSelect, formattedDates, "Показать неделю с " + curWeek, true);
+    if (Object.keys(allDates).includes(selectedDate)) {
+      elements.dateSelect.value = selectedDate;
     }
-    dateContainer.style.display = "block";
 
-    dateSelect.addEventListener("change", () => {
-      selectedDate = dateSelect.value;
-      if (selectedDate === "null") {
-        selectedDate = null;
-      }
+    elements.dateContainer.style.display = "block";
+
+    elements.dateSelect.addEventListener("change", () => {
+      selectedDate = elements.dateSelect.value !== "null" ? elements.dateSelect.value : null;
       buildSchedule(schedule, params, studyDates, curWeek, scheduleSpace);
     });
 
@@ -231,6 +181,34 @@ function handleGroupChange(schedule, params, scheduleSpace, curGroups, curWeek) 
   });
 }
 
+// Extracts column parameters from the schedule data
+function extractParams(schedule) {
+  return schedule[1].reduce((acc, cell, index) => {
+    if (cell) acc[cell] = index;
+    return acc;
+  }, {});
+}
+
+// Extracts the time intervals from the schedule data
+function extractTimeIntervals(schedule, params) {
+  return schedule.reduce((acc, row, index) => {
+    const cell = row[params["Часы"]];
+    if (index > 1 && cell && /\b(\d{2}\.\d{2}-\d{2}\.\d{2})\b/.test(cell)) {
+      acc[cell] = index;
+    }
+    return acc;
+  }, {});
+}
+
+// Extracts the groups from the schedule data
+function extractGroups(schedule) {
+  return schedule[0].reduce((acc, cell, index) => {
+    if (index !== 0 && cell) acc[cell] = index;
+    return acc;
+  }, {});
+}
+
+// Extracts updated parameters based on the selected group
 function extractUpdatedParams(schedule, curGroups) {
   return schedule[1].reduce((acc, cell, index) => {
     if (index >= curGroups[selectedGroup] && !acc[cell]) {
@@ -240,6 +218,7 @@ function extractUpdatedParams(schedule, curGroups) {
   }, {});
 }
 
+// Extracts all possible dates from the schedule
 function extractDates(schedule, params) {
   return schedule.reduce((acc, row, index) => {
     const dateCell = row[params["Дата"]];
@@ -250,6 +229,7 @@ function extractDates(schedule, params) {
   }, {});
 }
 
+// Filters the study dates based on the presence of schedule data
 function filterStudyDates(schedule, allDates, scheduleSpace, params) {
   return Object.entries(allDates).reduce((acc, [date, index]) => {
     for (let i = index; i < index + scheduleSpace; i++) {
@@ -259,14 +239,15 @@ function filterStudyDates(schedule, allDates, scheduleSpace, params) {
   }, {});
 }
 
+// Formats the dates for display in the date selector
 function formatDates(allDates, studyDates) {
   return Object.entries(allDates).reduce((acc, [date, index]) => {
     let study = studyDates[date] ? "" : " (Вых.)";
-    let today = date === todayDate ? " (Сег.)" : "";
+    let today = date === selectedDate ? " (Сег.)" : "";
     acc[date] = date + study + today;
     return acc;
   }, {});
 }
 
 // Event listeners
-yearSelect.addEventListener("change", handleYearChange);
+elements.yearSelect.addEventListener("change", handleYearChange);

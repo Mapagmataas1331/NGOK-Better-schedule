@@ -14,7 +14,12 @@ const elements = {
 
 let selectedSheet = null;
 let selectedGroup = null;
-let selectedDate = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+let selectedDate = new Date().toLocaleDateString("ru-RU", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: "UTC",
+});
 
 // Helper: Build the API URL
 function buildUrl(sheetName) {
@@ -47,11 +52,13 @@ function getDayOfWeek(dateStr) {
 async function fetchData(url) {
   try {
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Ошибка при получении данных. Проверьте ключ API.");
+    if (response.status === 403) throw new Error("Недействительный API-ключ.");
+    if (response.status === 404) throw new Error("Данные не найдены.");
+    if (!response.ok) throw new Error("Ошибка сети. Повторите попытку позже.");
     return await response.json();
   } catch (error) {
     console.error("Fetch error:", error.message);
-    elements.scheduleDiv.innerHTML = `<p>Ошибка загрузки данных: ${error.message}</p>`;
+    elements.scheduleDiv.innerHTML = `<p aria-live="polite">Ошибка загрузки данных: ${error.message}</p>`;
     return null;
   }
 }

@@ -80,25 +80,39 @@ function buildSchedule(schedule, params, studyDates, curWeek, scheduleSpace) {
     return;
   }
 
+  const today = new Date().toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
   const dates = selectedDate ? [selectedDate] : getFullWeek(curWeek);
   const scheduleTable = dates
     .map((date) => {
       const dayOfWeek = getDayOfWeek(date);
       const isStudyDay = studyDates[date] !== undefined;
-      let tableRows = `<tr class="schedule-header"><td>${date}</td><td>${dayOfWeek}</td></tr>`;
+
+      let headerClass = date === today ? "today schedule-header" : "schedule-header";
+      headerClass = !isStudyDay ? "day-off schedule-header" : headerClass;
+
+      let tableRows = `<tr class="${headerClass}"><td>${date}</td><td>${dayOfWeek}</td></tr>`;
 
       if (isStudyDay) {
         for (let i = studyDates[date]; i < studyDates[date] + scheduleSpace; i++) {
           const discipline = schedule[i][params["Дисциплины"]];
+          const auditorium = schedule[i][params["Ауд."]];
+
           if (discipline) {
+            const auditoriumContent =
+              auditorium && auditorium.startsWith("http") ? `<a href="${auditorium}">Онлайн</a>` : auditorium || "";
+
             tableRows += `
               <tr>
               <td class="time">${schedule[i] && schedule[i][params["Часы"]] ? schedule[i][params["Часы"]] : ""}</td>
               <td class="discipline">${discipline}</td>
               </tr><tr>
-              <td class="auditorium">${
-                schedule[i] && schedule[i][params["Ауд."]] ? schedule[i][params["Ауд."]] : ""
-              }</td>
+              <td class="auditorium">${auditoriumContent}</td>
               <td class="teacher">${
                 schedule[i] && schedule[i][params["Преподаватели"]] ? schedule[i][params["Преподаватели"]] : ""
               }</td>

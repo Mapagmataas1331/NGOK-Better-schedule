@@ -117,6 +117,14 @@ select:focus {
   color: var(--secondary-color);
 }
 
+.today td {
+  background-color: #66bb6a;
+}
+
+.day-off td {
+  background-color: #e57373;
+}
+
 .no-classes {
   text-align: center;
   color: var(--text-color);

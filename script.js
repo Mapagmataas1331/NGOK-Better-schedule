@@ -85,10 +85,17 @@ function buildSchedule(schedule, params, studyDates, curWeek, scheduleSpace) {
           const discipline = schedule[i][params["Дисциплины"]];
           if (discipline) {
             tableRows += `
-              <tr><td class="time">${schedule[i][params["Часы"]]}</td><td class="discipline">${discipline}</td></tr>
-              <tr><td class="teacher">${schedule[i][params["Преподаватели"]]}</td><td class="auditorium">${
-              schedule[i][params["Ауд."]]
-            }</td></tr>
+              <tr>
+              <td class="time">${schedule[i] && schedule[i][params["Часы"]] ? schedule[i][params["Часы"]] : ""}</td>
+              <td class="discipline">${discipline}</td>
+              </tr><tr>
+              <td class="auditorium">${
+                schedule[i] && schedule[i][params["Ауд."]] ? schedule[i][params["Ауд."]] : ""
+              }</td>
+              <td class="teacher">${
+                schedule[i] && schedule[i][params["Преподаватели"]] ? schedule[i][params["Преподаватели"]] : ""
+              }</td>
+              </tr>
             `;
           }
         }

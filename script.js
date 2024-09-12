@@ -281,3 +281,7 @@ function formatDates(allDates, studyDates) {
 
 // Event listeners
 elements.yearSelect.addEventListener("change", handleYearChange);
+
+window.onload = () => {
+  elements.yearSelect.value = "null";
+};

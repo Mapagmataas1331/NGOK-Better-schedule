@@ -18,7 +18,7 @@ let selectedDate = new Date().toLocaleDateString("ru-RU", {
   day: "2-digit",
   month: "2-digit",
   year: "numeric",
-  timeZone: "UTC",
+  timeZone: "Asia/Novosibirsk",
 });
 
 // Helper: Build the API URL
@@ -84,7 +84,7 @@ function buildSchedule(schedule, params, studyDates, curWeek, scheduleSpace) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-    timeZone: "UTC",
+    timeZone: "Asia/Novosibirsk",
   });
 
   const dates = selectedDate ? [selectedDate] : getFullWeek(curWeek);

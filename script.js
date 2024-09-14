@@ -198,6 +198,8 @@ function handleGroupChange(schedule, params, scheduleSpace, curGroups, curWeek) 
     populateSelect(elements.dateSelect, formattedDates, "Показать неделю с " + curWeek, true);
     if (Object.keys(studyDates).includes(selectedDate)) {
       elements.dateSelect.value = selectedDate;
+    } else {
+      selectedDate = null;
     }
 
     elements.dateContainer.style.display = "block";

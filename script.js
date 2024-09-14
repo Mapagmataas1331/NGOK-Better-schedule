@@ -196,7 +196,7 @@ function handleGroupChange(schedule, params, scheduleSpace, curGroups, curWeek) 
     const formattedDates = formatDates(allDates, studyDates);
 
     populateSelect(elements.dateSelect, formattedDates, "Показать неделю с " + curWeek, true);
-    if (Object.keys(allDates).includes(selectedDate)) {
+    if (Object.keys(studyDates).includes(selectedDate)) {
       elements.dateSelect.value = selectedDate;
     }
 

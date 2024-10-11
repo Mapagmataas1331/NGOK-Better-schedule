@@ -146,7 +146,8 @@ async function handleYearChange() {
   }
 
   const schedule = data.values;
-  const curWeek = schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)[0];
+  const curWeekCell = schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/);
+  const curWeek = curWeekCell ? curWeekCell[0] : null;
   const params = extractParams(schedule);
 
   if (!params["Дата"] || !params["Часы"]) {
@@ -195,7 +196,12 @@ function handleGroupChange(schedule, params, scheduleSpace, curGroups, curWeek) 
     const studyDates = filterStudyDates(schedule, allDates, scheduleSpace, params);
     const formattedDates = formatDates(allDates, studyDates);
 
-    populateSelect(elements.dateSelect, formattedDates, "Показать неделю с " + curWeek, true);
+    if (curWeek) {
+      populateSelect(elements.dateSelect, formattedDates, "Показать неделю с " + curWeek, true);
+    } else {
+      populateSelect(elements.dateSelect, formattedDates, "Выберите дату:");
+    }
+
     if (Object.keys(studyDates).includes(selectedDate)) {
       elements.dateSelect.value = selectedDate;
     } else {

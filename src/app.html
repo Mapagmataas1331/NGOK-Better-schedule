@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" class="h-full">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-title" content="NGOK" />
+		<link rel="manifest" href="/site.webmanifest" />
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<title>NGOK</title>
+		<meta name="description" content="NGOK Better schedule" />
+		<meta
+			name="keywords"
+			content="ma, cyou, macyou, mapagmataas, ma-cyou, ma.cyou, ngok, better, schedule, ngok.ma.cyou"
+		/>
+		<meta name="author" content="Mapagmataas" />
+		<meta name="robots" content="index, follow" />
+
+		<link rel="canonical" href="https://ngok.ma.cyou/" />
+
+		<meta property="og:url" content="https://ngok.ma.cyou/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content="NGOK" />
+		<meta property="og:description" content="NGOK Better schedule" />
+		<meta
+			property="og:image"
+			content="https://dynamic-og-image-generator.vercel.app/api/generate?title=NGOK+Better+schedule&author=Mapagmataas&websiteUrl=https%3A%2F%2Fma.cyou&avatar=https%3A%2F%2Fgithub.com%2Fma-cyou.png&theme=default"
+		/>
+
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta property="twitter:domain" content="ngok.ma.cyou" />
+		<meta property="twitter:url" content="https://ngok.ma.cyou/" />
+		<meta name="twitter:title" content="NGOK" />
+		<meta name="twitter:description" content="NGOK Better schedule" />
+		<meta name="twitter:alt" content="Twitter Image" />
+		<meta
+			name="twitter:image"
+			content="https://dynamic-og-image-generator.vercel.app/api/generate?title=NGOK+Better+schedule&author=Mapagmataas&websiteUrl=https%3A%2F%2Fma.cyou&avatar=https%3A%2F%2Fgithub.com%2Fma-cyou.png&theme=default"
+		/>
+
+		<script async>
+			(function () {
+				const getCookie = (name) =>
+					document.cookie
+						.split('; ')
+						.find((row) => row.startsWith(name))
+						?.split('=')[1];
+
+				const savedTheme = getCookie('theme');
+				const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				document.documentElement.classList.toggle(
+					'dark',
+					savedTheme ? savedTheme === 'dark' : prefersDarkScheme
+				);
+
+				const savedLanguage = getCookie('language');
+				const browserLanguage = navigator.language.startsWith('ru') ? 'ru' : 'en';
+				document.documentElement.setAttribute('lang', savedLanguage || browserLanguage);
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+
+	<body>
+		<div class="flex min-h-dvh flex-col">%sveltekit.body%</div>
+	</body>
+</html>

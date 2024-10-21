@@ -116,8 +116,12 @@
 
 		rangeVisible = true;
 
+		console.log(params);
+
 		const updatedParams = extractUpdatedParams();
 		Object.assign(params, updatedParams);
+
+		console.log(params);
 
 		allDates = extractDates(schedule, params);
 		studyDates = filterStudyDates(schedule, allDates, scheduleSpace, params);
@@ -206,8 +210,8 @@
 	};
 
 	const extractUpdatedParams = () => {
-		return schedule[0].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
-			if (groupOptions[cell]) {
+		return schedule[1].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
+			if (index >= groupOptions[selectedGroup] && !acc[cell]) {
 				acc[cell] = index;
 			}
 			return acc;

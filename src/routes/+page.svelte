@@ -384,11 +384,17 @@
 	{:else if scheduleStatus !== 'hidden'}
 		<Alert.Root class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3">
 			<Sticker class="h-8 w-8" />
-			<Alert.Title class="!pl-12"
-				>{$language === 'ru'
-					? 'Лучшая благодарность автору'
-					: 'Best Thanks to the Author'}</Alert.Title
-			>
+			<Alert.Title class="!pl-12">
+				{#if $language === 'ru'}
+					Лучшая благодарность <a class="font-semibold hover:underline" href="https://ma.cyou/"
+						>Автору</a
+					>
+				{:else}
+					Best Thanks to the <a class="font-semibold hover:underline" href="https://ma.cyou/"
+						>Author</a
+					>
+				{/if}
+			</Alert.Title>
 			<Alert.Description class="!pl-12">
 				{#if $language === 'ru'}
 					это подписка на <a

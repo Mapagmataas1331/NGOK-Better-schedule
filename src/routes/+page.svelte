@@ -9,6 +9,7 @@
 	import type { Selected, DateRange } from 'bits-ui';
 	import Skeleton from '$lib/shared/components/ui/skeleton/skeleton.svelte';
 	import Ban from 'lucide-svelte/icons/ban';
+	import Sticker from 'lucide-svelte/icons/sticker';
 
 	type Lesson = {
 		time: string;
@@ -45,7 +46,7 @@
 
 	let groupVisible = false;
 	let rangeVisible = false;
-	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' = 'hidden';
+	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' | '' = '';
 	let scheduleError: string | null = null;
 
 	const buildUrl = (sheetName: string) =>
@@ -323,9 +324,11 @@
 
 	{#if scheduleStatus === 'error'}
 		<Alert.Root class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3">
-			<Ban class="h-4 w-4" />
-			<Alert.Title>{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}</Alert.Title>
-			<Alert.Description>{scheduleError}</Alert.Description>
+			<Ban class="h-8 w-8" />
+			<Alert.Title class="!pl-12"
+				>{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}</Alert.Title
+			>
+			<Alert.Description class="!pl-12">{scheduleError}</Alert.Description>
 		</Alert.Root>
 	{:else if scheduleStatus === 'loading'}
 		<Skeleton class="my-1 h-8 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3" />
@@ -378,5 +381,35 @@
 				</Table.Root>
 			</div>
 		{/each}
+	{:else if scheduleStatus !== 'hidden'}
+		<Alert.Root class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3">
+			<Sticker class="h-8 w-8" />
+			<Alert.Title class="!pl-12"
+				>{$language === 'ru'
+					? 'Лучшая благодарность автору'
+					: 'Best Thanks to the Author'}</Alert.Title
+			>
+			<Alert.Description class="!pl-12">
+				{#if $language === 'ru'}
+					это подписка на <a
+						class="font-semibold hover:underline"
+						href="https://github.com/Mapagmataas1331">GitHub</a
+					>
+					и звездочка на
+					<a class="font-semibold hover:underline" href="https://github.com/Mapagmataas1331/ma"
+						>Репозиторий</a
+					>
+				{:else}
+					is a subscription on <a
+						class="font-semibold hover:underline"
+						href="https://github.com/Mapagmataas1331">GitHub</a
+					>
+					and a star on
+					<a class="font-semibold hover:underline" href="https://github.com/Mapagmataas1331/ma"
+						>Repository</a
+					>
+				{/if}
+			</Alert.Description>
+		</Alert.Root>
 	{/if}
 </div>

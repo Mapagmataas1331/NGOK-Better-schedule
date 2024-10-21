@@ -304,7 +304,7 @@
 			>
 				<Select.Value placeholder={$language === 'ru' ? 'Выберите группу' : 'Select group'} />
 			</Select.Trigger>
-			<Select.Content>
+			<Select.Content class="max-h-[256px] overflow-y-auto">
 				{#each Object.keys(groupOptions) as group}
 					<Select.Item value={group}>{group}</Select.Item>
 				{/each}

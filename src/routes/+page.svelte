@@ -98,11 +98,7 @@
 
 	const handleYearChange = async () => {
 		resetSelection(true);
-		console.log('before', selectedYear, scheduleStatus);
-
 		if (!selectedYear) return;
-		console.log('after', selectedYear, scheduleStatus);
-
 		const url = buildUrl(selectedYear);
 		const data = await fetchData(url);
 		if (!data || !data.values) return;
@@ -120,11 +116,7 @@
 
 	const handleGroupChange = () => {
 		resetSelection();
-		console.log('scheduleStatus', scheduleStatus);
-
 		if (!selectedGroup) return;
-		console.log('after groupVisible');
-
 		rangeVisible = true;
 
 		const updatedParams = extractUpdatedParams();
@@ -348,10 +340,23 @@
 		<RangeCalendar
 			bind:value={selectedRange}
 			weekStartsOn={1}
-			numberOfMonths={2}
+			numberOfMonths={1}
 			class="my-1 items-center justify-center rounded-md border bg-background px-4 shadow-md"
 			onValueChange={handleRangeChange}
 		/>
+		<p class="mb-1 drop-shadow-xl">
+			{#if selectedRange.start && selectedRange.end}
+				{#if selectedRange.start === selectedRange.end}
+					{$language === 'ru' ? 'Выбран один день:' : 'One day selected:'}
+					{formatCalendarDate(selectedRange.start)}
+				{:else}
+					{$language === 'ru' ? 'Выбранный период:' : 'Selected Range:'}
+					{formatCalendarDate(selectedRange.start)} - {formatCalendarDate(selectedRange.end)}
+				{/if}
+			{:else}
+				{$language === 'ru' ? 'Период не выбран' : 'Range not selected'}
+			{/if}
+		</p>
 	{/if}
 
 	{#if scheduleStatus === 'error'}

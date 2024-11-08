@@ -4,12 +4,14 @@
 	import { RangeCalendar } from '$shared/components/ui/range-calendar/index.js';
 	import * as Alert from '$shared/components/ui/alert/index.js';
 	import * as Table from '$shared/components/ui/table';
-	import { language } from '$shared/stores/language';
-	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
-	import type { Selected, DateRange } from 'bits-ui';
-	import Skeleton from '$lib/shared/components/ui/skeleton/skeleton.svelte';
+	import Skeleton from '$shared/components/ui/skeleton/skeleton.svelte';
+	import Button from '$shared/components/ui/button/button.svelte';
 	import Ban from 'lucide-svelte/icons/ban';
 	import Sticker from 'lucide-svelte/icons/sticker';
+	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
+	import { language } from '$shared/stores/language';
+	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
+	import type { DateRange } from 'bits-ui';
 
 	type Lesson = {
 		time: string;
@@ -23,31 +25,35 @@
 		lessons: Lesson[];
 	};
 
-	let selectedYear = '';
-	let selectedGroup = '';
-	let selectedRange: DateRange = {
+	let selectedYear = $state('');
+	let selectedGroup = $state('');
+	let selectedRange: DateRange = $state({
 		start: today(getLocalTimeZone()),
 		end: today(getLocalTimeZone()).add({ days: 6 })
-	};
+	});
+	let lastQuery = $state({
+		year: '',
+		group: ''
+	});
 
 	const sheetId = '1FiMov0r4UUDKT6A56NWMImpoUakDC2YDevgaOpJQ7Qc';
 	const apiKey = 'AIzaSyAxU9vV25C6ylby6cg9BO3SLz7_7xj50wo';
 
 	let schedule: string[][] = [];
 	let params: { [key: string]: number } = {};
-	let studyDates: { [key: string]: number } = {};
+	let studyDates: { [key: string]: number } = $state({});
 	let curWeek = '';
 	let scheduleSpace = 0;
 	let allDates = {};
 
 	let yearOptions: string[] = ['1', '2', '3', '4'];
-	let groupOptions: { [key: string]: number } = {};
-	let buildedSchedule: Record<string, ScheduleEntry> = {};
+	let groupOptions: { [key: string]: number } = $state({});
+	let buildedSchedule: Record<string, ScheduleEntry> = $state({});
 
-	let groupVisible = false;
-	let rangeVisible = false;
-	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' | '' = '';
-	let scheduleError: string | null = null;
+	let groupVisible = $state(false);
+	let rangeVisible = $state(false);
+	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' | '' = $state('');
+	let scheduleError: string | null = $state(null);
 
 	const buildUrl = (sheetName: string) =>
 		`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName + ' курс')}?key=${apiKey}`;
@@ -90,10 +96,12 @@
 		}
 	};
 
-	const handleYearChange = async (value: Selected<unknown> | undefined) => {
-		selectedYear = (value?.value as string) ?? '';
+	const handleYearChange = async () => {
 		resetSelection(true);
+		console.log('before', selectedYear, scheduleStatus);
+
 		if (!selectedYear) return;
+		console.log('after', selectedYear, scheduleStatus);
 
 		const url = buildUrl(selectedYear);
 		const data = await fetchData(url);
@@ -110,32 +118,26 @@
 		groupVisible = true;
 	};
 
-	const handleGroupChange = (value: Selected<unknown> | undefined) => {
-		selectedGroup = (value?.value as string) ?? '';
+	const handleGroupChange = () => {
 		resetSelection();
+		console.log('scheduleStatus', scheduleStatus);
+
 		if (!selectedGroup) return;
+		console.log('after groupVisible');
 
 		rangeVisible = true;
-
-		console.log(params);
 
 		const updatedParams = extractUpdatedParams();
 		Object.assign(params, updatedParams);
 
-		console.log(params);
-
 		allDates = extractDates(schedule, params);
 		studyDates = filterStudyDates(schedule, allDates, scheduleSpace, params);
 
-		buildSchedule();
+		if (selectedYear && selectedGroup && selectedRange) buildSchedule();
 	};
 
-	const handleRangeChange = (date: DateRange) => {
-		selectedRange = date ?? {
-			start: today(getLocalTimeZone()),
-			end: today(getLocalTimeZone()).add({ days: 6 })
-		};
-		buildSchedule();
+	const handleRangeChange = () => {
+		if (selectedYear && selectedGroup && selectedRange) buildSchedule();
 	};
 
 	const buildSchedule = () => {
@@ -187,6 +189,10 @@
 		}, {});
 
 		scheduleStatus = 'visible';
+		lastQuery = {
+			year: selectedYear,
+			group: selectedGroup
+		};
 	};
 
 	const resetSelection = (ifGroup = false) => {
@@ -198,6 +204,7 @@
 			end: today(getLocalTimeZone()).add({ days: 6 })
 		};
 		if (ifGroup) {
+			scheduleStatus = '';
 			groupVisible = false;
 			selectedGroup = '';
 		}
@@ -278,19 +285,39 @@
 
 	onMount(() => {
 		selectedYear = '';
+
+		lastQuery = {
+			year: localStorage.getItem('year') || '',
+			group: localStorage.getItem('group') || ''
+		};
+
+		$effect((lq = lastQuery) => {
+			localStorage.setItem('year', lq.year);
+			localStorage.setItem('group', lq.group);
+		});
 	});
 </script>
 
 <div
 	class="mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center justify-center bg-gradient-to-br from-white to-sky-200 px-1 dark:from-sky-800 dark:to-black md:min-h-[calc(100dvh_-_4rem)]"
 >
-	<Select.Root onSelectedChange={handleYearChange}>
+	<Select.Root
+		type="single"
+		name="yearSelect"
+		bind:value={selectedYear}
+		onValueChange={handleYearChange}
+	>
 		<Select.Trigger
 			class="my-1 w-full min-w-[256px] bg-background shadow-md md:w-2/3 lg:w-1/2 2xl:w-1/3"
 		>
-			<Select.Value placeholder={$language === 'ru' ? 'Выберите курс' : 'Select year'} />
+			{selectedYear
+				? selectedYear + ' ' + ($language === 'ru' ? 'курс' : 'year')
+				: $language === 'ru'
+					? 'Выберите курс'
+					: 'Select year'}
 		</Select.Trigger>
 		<Select.Content>
+			<Select.Item value="">{$language === 'ru' ? 'Сброс' : 'Reset'}</Select.Item>
 			{#each yearOptions as option}
 				<Select.Item value={option}>{option} {$language === 'ru' ? 'курс' : 'year'}</Select.Item>
 			{/each}
@@ -298,11 +325,16 @@
 	</Select.Root>
 
 	{#if groupVisible}
-		<Select.Root onSelectedChange={handleGroupChange}>
+		<Select.Root
+			type="single"
+			name="groupSelect"
+			bind:value={selectedGroup}
+			onValueChange={handleGroupChange}
+		>
 			<Select.Trigger
 				class="my-1 w-full min-w-[256px] bg-background shadow-md md:w-2/3 lg:w-1/2 2xl:w-1/3"
 			>
-				<Select.Value placeholder={$language === 'ru' ? 'Выберите группу' : 'Select group'} />
+				{selectedGroup ? selectedGroup : $language === 'ru' ? 'Выберите группу' : 'Select group'}
 			</Select.Trigger>
 			<Select.Content class="max-h-[256px] overflow-y-auto">
 				{#each Object.keys(groupOptions) as group}
@@ -314,17 +346,17 @@
 
 	{#if rangeVisible}
 		<RangeCalendar
-			value={selectedRange}
-			onValueChange={handleRangeChange}
+			bind:value={selectedRange}
 			weekStartsOn={1}
 			numberOfMonths={2}
 			class="my-1 items-center justify-center rounded-md border bg-background px-4 shadow-md"
+			onValueChange={handleRangeChange}
 		/>
 	{/if}
 
 	{#if scheduleStatus === 'error'}
 		<Alert.Root class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3">
-			<Ban class="h-8 w-8" />
+			<Ban class="size-8" />
 			<Alert.Title class="!pl-12"
 				>{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}</Alert.Title
 			>
@@ -362,7 +394,7 @@
 								<Table.Row>
 									<Table.Cell class="text-right">
 										{#if lesson.auditorium.startsWith('http')}
-											<a href={lesson.auditorium} class="underline">
+											<a href={lesson.auditorium} target="_blank" class="underline">
 												{$language === 'ru' ? 'Онлайн' : 'Online'}
 											</a>
 										{:else}
@@ -382,8 +414,27 @@
 			</div>
 		{/each}
 	{:else if scheduleStatus !== 'hidden'}
+		{#if lastQuery.year && lastQuery.group}
+			<Button
+				variant="outline"
+				class="my-1 w-full min-w-[256px] !justify-start md:w-2/3 lg:w-1/2 2xl:w-1/3"
+				onclick={async () => {
+					selectedYear = lastQuery.year;
+					await handleYearChange();
+					selectedGroup = lastQuery.group;
+					handleGroupChange();
+				}}
+			>
+				<MousePointerClick class="ml-1 mr-2.5 !size-6" />
+				<p>{$language === 'ru' ? 'Последний запрос: ' : 'Last query:'}</p>
+				<p class="font-semibold">
+					{lastQuery.year}
+					{$language === 'ru' ? 'курс' : 'year'}, {lastQuery.group}
+				</p>
+			</Button>
+		{/if}
 		<Alert.Root class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3">
-			<Sticker class="h-8 w-8" />
+			<Sticker class="size-8" />
 			<Alert.Title class="!pl-12">
 				{#if $language === 'ru'}
 					Лучшая благодарность <a class="font-semibold hover:underline" href="https://ma.cyou/"

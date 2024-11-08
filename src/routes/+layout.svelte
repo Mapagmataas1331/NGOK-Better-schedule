@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { language } from '$shared/stores/language';
 
 	import Header from '$shared/components/Header.svelte';
@@ -8,13 +7,11 @@
 
 	import '@/app.scss';
 
-	onMount(() => {
-		console.log('Layout mounted');
-	});
+	let { children } = $props();
 </script>
 
 <Header title="NGOK" titleLink="https://opencollege-nsk.ru/" {Logo} profile={false} />
-<slot />
+{@render children()}
 <footer class="flex flex-wrap justify-center gap-2 px-2 py-4 text-xs text-muted-foreground">
 	<a href="https://ma.cyou/" class="hover:text-foreground"
 		>{$language === 'ru' ? 'Сайт Автора' : "Author's site"}</a

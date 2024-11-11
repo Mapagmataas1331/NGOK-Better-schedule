@@ -9,6 +9,8 @@
 	import Ban from 'lucide-svelte/icons/ban';
 	import Sticker from 'lucide-svelte/icons/sticker';
 	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
+	import Plus from 'lucide-svelte/icons/plus';
+	import Minus from 'lucide-svelte/icons/minus';
 	import { language } from '$shared/stores/language';
 	import { viewport, breakpoints } from '$shared/stores/viewport';
 	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
@@ -350,9 +352,34 @@
 		{/key}
 		<p class="mb-1 drop-shadow-xl">
 			{#if selectedRange.start && selectedRange.end}
-				{#if selectedRange.start === selectedRange.end}
-					{$language === 'ru' ? 'Выбран один день:' : 'One day selected:'}
+				{#if formatCalendarDate(selectedRange.start) === formatCalendarDate(selectedRange.end)}
+					<Button
+						variant="ghost"
+						size="icon"
+						onclick={() => {
+							selectedRange = {
+								start: selectedRange.start?.subtract({ days: 1 }),
+								end: selectedRange.end?.subtract({ days: 1 })
+							};
+							buildSchedule();
+						}}
+					>
+						<Minus />
+					</Button>
 					{formatCalendarDate(selectedRange.start)}
+					<Button
+						variant="ghost"
+						size="icon"
+						onclick={() => {
+							selectedRange = {
+								start: selectedRange.start?.add({ days: 1 }),
+								end: selectedRange.end?.add({ days: 1 })
+							};
+							buildSchedule();
+						}}
+					>
+						<Plus />
+					</Button>
 				{:else}
 					{$language === 'ru' ? 'Выбранный период:' : 'Selected Range:'}
 					{formatCalendarDate(selectedRange.start)} - {formatCalendarDate(selectedRange.end)}

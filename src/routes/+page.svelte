@@ -348,8 +348,6 @@
 				onValueChange={handleRangeChange}
 			/>
 		{/key}
-		{$viewport.vw}
-		{$viewport.vh}
 		<p class="mb-1 drop-shadow-xl">
 			{#if selectedRange.start && selectedRange.end}
 				{#if selectedRange.start === selectedRange.end}

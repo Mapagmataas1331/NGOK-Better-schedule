@@ -10,6 +10,7 @@
 	import Sticker from 'lucide-svelte/icons/sticker';
 	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
 	import { language } from '$shared/stores/language';
+	import { viewport, breakpoints } from '$shared/stores/viewport';
 	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
 	import type { DateRange } from 'bits-ui';
 
@@ -337,13 +338,18 @@
 	{/if}
 
 	{#if rangeVisible}
-		<RangeCalendar
-			bind:value={selectedRange}
-			weekStartsOn={1}
-			numberOfMonths={1}
-			class="my-1 items-center justify-center rounded-md border bg-background px-4 shadow-md"
-			onValueChange={handleRangeChange}
-		/>
+		{@const numberOfMonths = $viewport.vw >= breakpoints.md ? 2 : 1}
+		{#key numberOfMonths}
+			<RangeCalendar
+				bind:value={selectedRange}
+				weekStartsOn={1}
+				{numberOfMonths}
+				class="my-1 items-center justify-center rounded-md border bg-background px-4 shadow-md"
+				onValueChange={handleRangeChange}
+			/>
+		{/key}
+		{$viewport.vw}
+		{$viewport.vh}
 		<p class="mb-1 drop-shadow-xl">
 			{#if selectedRange.start && selectedRange.end}
 				{#if selectedRange.start === selectedRange.end}

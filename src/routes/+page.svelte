@@ -441,8 +441,8 @@
 								<Table.Row>
 									<Table.Cell class="text-right"
 										>{lesson.time.includes('.')
-											? day.lessons[0].time.replace(/\./g, ':')
-											: day.lessons[0].time}</Table.Cell
+											? lesson.time.replace(/\./g, ':')
+											: lesson.time}</Table.Cell
 									>
 									<Table.Cell class="text-left">{lesson.discipline}</Table.Cell>
 								</Table.Row>

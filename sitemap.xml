@@ -7,4 +7,7 @@
   <url>
     <loc>https://ngok.ma.cyou</loc>
   </url>
+  <url>
+    <loc>https://ngok.ma.cyou/debug</loc>
+  </url>
 </urlset>

@@ -13,8 +13,10 @@
 	import Minus from 'lucide-svelte/icons/minus';
 	import { language } from '$shared/stores/language';
 	import { viewport, breakpoints } from '$shared/stores/viewport';
-	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
-	import type { DateRange } from 'bits-ui';
+	import { fetchTableData } from '$lib/utils/fetchTableData';
+	import { dateValueToDate, dateValueToString } from '$lib/utils/formatDate';
+	import { getLocalTimeZone, today } from '@internationalized/date';
+	import { type DateRange } from 'bits-ui';
 
 	type Lesson = {
 		time: string;
@@ -39,13 +41,10 @@
 		group: ''
 	});
 
-	const sheetId = '1FiMov0r4UUDKT6A56NWMImpoUakDC2YDevgaOpJQ7Qc';
-	const apiKey = 'AIzaSyAxU9vV25C6ylby6cg9BO3SLz7_7xj50wo';
-
-	let schedule: string[][] = [];
+	let schedule: string[][] | null = null;
 	let params: { [key: string]: number } = {};
 	let studyDates: { [key: string]: number } = $state({});
-	let curWeek = '';
+	let curWeek: string | null = null;
 	let timeIntervals: { [key: string]: number } = $state({});
 	let allDates = {};
 
@@ -58,57 +57,21 @@
 	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' | '' = $state('');
 	let scheduleError: string | null = $state(null);
 
-	const buildUrl = (sheetName: string) =>
-		`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName + ' курс')}?key=${apiKey}`;
-
-	const showError = (code = '400', message = 'Unknown error') => {
-		scheduleStatus = 'error';
-		scheduleError = `Error ${code}: ${message}>`;
-	};
-
-	const formatCalendarDate = (date: DateValue): string => {
-		const day = String(date.day).padStart(2, '0');
-		const month = String(date.month).padStart(2, '0');
-		const year = date.year;
-
-		return `${day}.${month}.${year}`;
-	};
-
-	const parseStringDate = (dateStr: string): Date => {
-		const [day, month, year] = dateStr.split('.').map(Number);
-		return new Date(year, month - 1, day);
-	};
-
-	const fetchData = async (url: string) => {
-		try {
-			scheduleStatus = 'loading';
-			const response = await fetch(url);
-			const data = await response.json();
-			if (!response.ok) {
-				showError(data.error.code, data.error.message);
-				return;
-			}
-			scheduleStatus = 'hidden';
-			return data;
-		} catch (error) {
-			if (error instanceof Error) {
-				showError(error.name, error.message);
-			} else {
-				showError(undefined, String(error));
-			}
-		}
-	};
-
 	const handleYearChange = async () => {
 		resetSelection(true);
 		if (!selectedYear) return;
-		const url = buildUrl(selectedYear);
-		const data = await fetchData(url);
-		if (!data || !data.values) return;
+		scheduleStatus = 'loading';
+		const data = await fetchTableData(selectedYear);
+		schedule = data.schedule;
+		scheduleError = data.scheduleError;
+		if (scheduleError || !schedule) {
+			scheduleStatus = 'error';
+			return;
+		}
 
-		schedule = data.values;
+		scheduleStatus = 'hidden';
 		params = extractParams();
-		curWeek = schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0] || '';
+		curWeek = schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0] || null;
 		timeIntervals = extractTimeIntervals();
 		groupOptions = extractGroups();
 		groupVisible = true;
@@ -139,8 +102,8 @@
 		}
 
 		scheduleStatus = 'loading';
-		const startDate = parseStringDate(formatCalendarDate(selectedRange.start));
-		const endDate = parseStringDate(formatCalendarDate(selectedRange.end));
+		const startDate = dateValueToDate(selectedRange.start);
+		const endDate = dateValueToDate(selectedRange.end);
 
 		let currentDate = startDate;
 		let dates = [];
@@ -154,6 +117,11 @@
 		}
 
 		buildedSchedule = dates.reduce((acc: Record<string, ScheduleEntry>, date) => {
+			if (!schedule) {
+				scheduleError = 'Error: Schedule is null';
+				scheduleStatus = 'error';
+				return {};
+			}
 			const dayOfWeek = getDayOfWeek(date);
 			const isStudyDay = studyDates[date] !== undefined;
 
@@ -207,6 +175,11 @@
 	};
 
 	const extractParams = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
 		return schedule[1].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
 			if (cell) acc[cell] = index;
 			return acc;
@@ -214,6 +187,11 @@
 	};
 
 	const extractUpdatedParams = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
 		return schedule[1].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
 			if (index >= groupOptions[selectedGroup] && !acc[cell]) {
 				acc[cell] = index;
@@ -223,6 +201,11 @@
 	};
 
 	const extractTimeIntervals = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
 		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
 			const time = row[params['Часы']];
 			if (index > 0 && time && time !== 'Часы') acc[time] = index;
@@ -231,6 +214,11 @@
 	};
 
 	const extractGroups = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
 		return schedule[0].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
 			if (index > 0 && cell) acc[cell] = index;
 			return acc;
@@ -253,10 +241,15 @@
 	};
 
 	const filterStudyDates = (
-		schedule: string[][],
+		schedule: string[][] | null,
 		allDates: Record<string, number>,
 		params: { [key: string]: number }
 	): Record<string, number> => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
 		return Object.entries(allDates).reduce(
 			(acc, [date, index]) => {
 				for (let i = index; i < index + Object.keys(timeIntervals).length; i++) {
@@ -268,7 +261,12 @@
 		);
 	};
 
-	const extractDates = (schedule: string[][], params: { [key: string]: number }) => {
+	const extractDates = (schedule: string[][] | null, params: { [key: string]: number }) => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
 		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
 			const dateCell = row[params['Дата']];
 			if (index > 1 && dateCell && /\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)) {
@@ -352,7 +350,7 @@
 		{/key}
 		<p class="mb-1 drop-shadow-xl">
 			{#if selectedRange.start && selectedRange.end}
-				{#if formatCalendarDate(selectedRange.start) === formatCalendarDate(selectedRange.end)}
+				{#if dateValueToString(selectedRange.start) === dateValueToString(selectedRange.end)}
 					<Button
 						variant="ghost"
 						size="icon"
@@ -366,7 +364,7 @@
 					>
 						<Minus />
 					</Button>
-					{formatCalendarDate(selectedRange.start)}
+					{dateValueToString(selectedRange.start)}
 					<Button
 						variant="ghost"
 						size="icon"
@@ -382,7 +380,7 @@
 					</Button>
 				{:else}
 					{$language === 'ru' ? 'Выбранный период:' : 'Selected Range:'}
-					{formatCalendarDate(selectedRange.start)} - {formatCalendarDate(selectedRange.end)}
+					{dateValueToString(selectedRange.start)} - {dateValueToString(selectedRange.end)}
 				{/if}
 			{:else}
 				{$language === 'ru' ? 'Период не выбран' : 'Range not selected'}
@@ -407,7 +405,7 @@
 			>
 				<Table.Root>
 					<Table.Header
-						class="text-base {key === formatCalendarDate(today(getLocalTimeZone()))
+						class="text-base {key === dateValueToString(today(getLocalTimeZone()))
 							? 'bg-green-100 dark:bg-green-800/50'
 							: studyDates[key]
 								? 'bg-blue-100 dark:bg-blue-800/50'

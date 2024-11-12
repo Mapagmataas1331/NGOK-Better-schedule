@@ -79,12 +79,29 @@
 			<Button
 				variant="outline"
 				class="mb-0.5 w-full min-w-[256px] font-semibold md:w-2/3 lg:w-1/2 2xl:w-1/3"
-				onclick={() => (ifOpen[teacher] = !ifOpen[teacher])}
+				onclick={() => {
+					ifOpen[teacher] = !ifOpen[teacher];
+					setTimeout(() => {
+						document.getElementById(teacher)?.focus();
+						document.getElementById(teacher)?.blur();
+					}, 250);
+				}}
 			>
-				{teacher}
+				{teacher.replace(/\ /g, '_')}
 			</Button>
 			{#if ifOpen[teacher]}
-				<div class="mb-0.5 grid grid-cols-3 border-l-2 md:grid-cols-6">
+				<p
+					id={teacher}
+					class="w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3"
+					lang="ru"
+					spellcheck
+					contenteditable
+				>
+					{teacher}
+				</p>
+				<div
+					class="mb-2 grid w-full min-w-[256px] grid-cols-3 border-l-2 md:w-2/3 md:grid-cols-6 lg:w-1/2 2xl:w-1/3"
+				>
 					{#each lessons as { year, col, row }}
 						<Button variant="ghost" target="_blank" href={buildHref(year, row + 1, col + 1)}
 							>{year}-{colToLetter(col + 1)}/{row + 1}</Button

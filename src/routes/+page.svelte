@@ -46,7 +46,7 @@
 	let params: { [key: string]: number } = {};
 	let studyDates: { [key: string]: number } = $state({});
 	let curWeek = '';
-	let scheduleSpace = 0;
+	let timeIntervals: { [key: string]: number } = $state({});
 	let allDates = {};
 
 	let yearOptions: string[] = ['1', '2', '3', '4'];
@@ -109,11 +109,8 @@
 		schedule = data.values;
 		params = extractParams();
 		curWeek = schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0] || '';
-		const timeIntervals = extractTimeIntervals();
-
-		scheduleSpace = Object.keys(timeIntervals).length;
+		timeIntervals = extractTimeIntervals();
 		groupOptions = extractGroups();
-
 		groupVisible = true;
 	};
 
@@ -126,7 +123,7 @@
 		Object.assign(params, updatedParams);
 
 		allDates = extractDates(schedule, params);
-		studyDates = filterStudyDates(schedule, allDates, scheduleSpace, params);
+		studyDates = filterStudyDates(schedule, allDates, params);
 
 		if (selectedYear && selectedGroup && selectedRange) buildSchedule();
 	};
@@ -162,7 +159,11 @@
 
 			let lessons: Lesson[] = [];
 			if (isStudyDay) {
-				for (let i = studyDates[date]; i < studyDates[date] + scheduleSpace; i++) {
+				for (
+					let i = studyDates[date];
+					i < studyDates[date] + Object.keys(timeIntervals).length;
+					i++
+				) {
 					const discipline = schedule[i][params['Дисциплины']];
 					const auditorium = schedule[i][params['Ауд.']];
 					const time = schedule[i][params['Часы']];
@@ -254,12 +255,11 @@
 	const filterStudyDates = (
 		schedule: string[][],
 		allDates: Record<string, number>,
-		scheduleSpace: number,
 		params: { [key: string]: number }
 	): Record<string, number> => {
 		return Object.entries(allDates).reduce(
 			(acc, [date, index]) => {
-				for (let i = index; i < index + scheduleSpace; i++) {
+				for (let i = index; i < index + Object.keys(timeIntervals).length; i++) {
 					if (schedule[i][params['Дисциплины']]) acc[date] = index;
 				}
 				return acc;
@@ -422,9 +422,28 @@
 					</Table.Header>
 					<Table.Body class="bg-background">
 						{#if studyDates[key]}
+							{#if day.lessons[0].time !== Object.keys(timeIntervals)[0]}
+								<Table.Row>
+									<Table.Cell class="text-center font-semibold italic" colspan={2}>
+										{$language === 'ru' ? 'Пары начинаются с' : 'Lessons start at'}
+										{@const lessonTime = day.lessons[0]?.time}
+
+										{#if lessonTime}
+											{@const time = lessonTime.includes('-')
+												? lessonTime.split('-')[0]
+												: lessonTime}
+											{time.includes('.') ? time.replace(/\./g, ':') : time}
+										{/if}
+									</Table.Cell>
+								</Table.Row>
+							{/if}
 							{#each day.lessons as lesson}
 								<Table.Row>
-									<Table.Cell class="text-right">{lesson.time}</Table.Cell>
+									<Table.Cell class="text-right"
+										>{lesson.time.includes('.')
+											? day.lessons[0].time.replace(/\./g, ':')
+											: day.lessons[0].time}</Table.Cell
+									>
 									<Table.Cell class="text-left">{lesson.discipline}</Table.Cell>
 								</Table.Row>
 								<Table.Row>
@@ -441,7 +460,7 @@
 								</Table.Row>
 							{/each}
 						{:else}
-							<Table.Cell class="text-center" colspan={2}>
+							<Table.Cell class="text-center font-semibold italic" colspan={2}>
 								{$language === 'ru' ? 'Нет пар' : 'No lessons'}
 							</Table.Cell>
 						{/if}

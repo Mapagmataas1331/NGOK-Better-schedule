@@ -75,12 +75,12 @@
 					? `После сканирования будет доступен список всех "${selectedParam}", при нажатии на них будет открыт список их упоминаний, а по нажатию на упоминания будет открыта новая вкладка с таблицей рассписания на нужной ячейки.`
 					: `After scanning, a list of all "${selectedParam}" will be available, and clicking on them will open a list of their mentions, and clicking on mentions will open a new tab with tables of schedules on the necessary cells.`}
 			</p>
-			<blockquote class="mb-1 italic">
+			<blockquote class="mb-1 text-sm italic md:text-lg">
 				{$language === 'ru'
-					? 'Просьба не злоупотреблять сканированием, поскольку на 1 сканирование тратяться 4 api запроса, и если вы оказались здесь случаенно - покинуть страницу и сделать вид что ничего не было.'
+					? 'Просьба не злоупотреблять сканированием, поскольку на 1 сканирование уходят 4 api запроса, и если вы оказались здесь случайно - просьба покинуть страницу и сделать вид что ничего не было.'
 					: 'Please do not abuse scanning, as 1 scan consumes 4 api requests, and if you happen to be here by chance - leave the page and make it look like nothing happened.'}
 			</blockquote>
-			<blockquote class="italic">
+			<blockquote class="text-sm italic md:text-lg">
 				{$language === 'ru'
 					? 'Для повторного сканирования - перезагрузите страницу.'
 					: 'For a repeated scan - reload the page.'}

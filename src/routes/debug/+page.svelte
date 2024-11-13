@@ -1,11 +1,14 @@
 <script lang="ts">
 	import * as Select from '$shared/components/ui/select';
 	import Button from '$shared/components/ui/button/button.svelte';
+	import Skeleton from '$shared/components/ui/skeleton/skeleton.svelte';
 	import { Input } from '$shared/components/ui/input/index.js';
 	import { language } from '$shared/stores/language';
 	import { colToLetter, buildHref, fetchTableData } from '$lib/utils/fetchTableData';
 
 	const schedule: { [year: string]: string[][] } = {};
+	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' | '' = $state('');
+	let scheduleError: string | null = $state(null);
 	const paramsWithMentions: { [teacher: string]: { year: string; col: number; row: number }[] } =
 		$state({});
 	const ifOpen: { [teacher: string]: boolean } = $state({});
@@ -28,11 +31,14 @@
 	exceptions.push(...availableParams.map((param) => param.value));
 
 	const fetchSchedule = async () => {
+		scheduleStatus = 'loading';
 		const gottenParams: { [year: string]: number[] } = {};
 
 		for (let i = 1; i <= 4; i++) {
 			const data = await fetchTableData(String(i));
-			if (data.scheduleError || !data.schedule) {
+			scheduleError = data.scheduleError ? data.scheduleError + ' in year ' + i : null;
+			if (scheduleError || !data.schedule) {
+				scheduleStatus = 'error';
 				return;
 			}
 			schedule[i] = data.schedule;
@@ -57,6 +63,8 @@
 				});
 			});
 		});
+
+		scheduleStatus = 'visible';
 	};
 </script>
 
@@ -98,13 +106,17 @@
 				{/each}
 			</Select.Content>
 		</Select.Root>
-		<Button
-			variant="outline"
-			class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3"
-			onclick={async () => await fetchSchedule()}
-		>
-			{$language === 'ru' ? 'Сканировать' : 'Fetch'}
-		</Button>
+		{#if scheduleStatus === 'loading'}
+			<Skeleton class="my-1 h-8 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3" />
+		{:else}
+			<Button
+				variant="outline"
+				class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3"
+				onclick={async () => await fetchSchedule()}
+			>
+				{$language === 'ru' ? 'Сканировать' : 'Fetch'}
+			</Button>
+		{/if}
 	{:else}
 		<div class="mb-10 flex w-full flex-col items-center">
 			{#each Object.entries(paramsWithMentions)

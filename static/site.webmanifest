@@ -1,6 +1,6 @@
 {
-  "name": "NGOK Better schedule",
-  "short_name": "NGOK",
+  "name": "Расписание занятий НГОК",
+  "short_name": "НГОК",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

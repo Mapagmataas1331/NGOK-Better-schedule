@@ -344,7 +344,8 @@
 
 		{#if rangeVisible}
 			{@const numberOfMonths = $viewport.vw >= breakpoints.md ? 2 : 1}
-			{#key numberOfMonths}
+			{@const lang = $language === 'ru' ? 'ru' : 'en'}
+			{#key [numberOfMonths, lang]}
 				<div
 					class="group flex min-h-9 w-full flex-col items-center justify-center rounded-md border-input bg-background px-3 py-2 font-medium shadow-md"
 				>
@@ -359,11 +360,11 @@
 					<Separator class="mt-2 hidden group-hover:block"></Separator>
 					<RangeCalendar
 						bind:value={selectedRange}
-						weekStartsOn={1}
+						weekStartsOn={lang === 'ru' ? 0 : 1}
 						{numberOfMonths}
 						class="hidden capitalize group-hover:block"
 						onValueChange={handleRangeChange}
-						locale={$language === 'ru' ? 'ru' : 'en'}
+						locale={lang === 'ru' ? 'ru' : 'en'}
 					/>
 				</div>
 			{/key}

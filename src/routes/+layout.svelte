@@ -26,7 +26,7 @@
 
 <Footer
 	links={{
-		'https://ma.cyou/': { name: "Author's site", nameRu: 'Сайт Автора' },
+		'https://ma.cyou/': { name: 'Author', nameRu: 'Автор' },
 		'https://opencollege-nsk.ru/': { name: "NGOK's site", nameRu: "Сайт НГОК'а" },
 		'https://docs.google.com/spreadsheets/d/1FiMov0r4UUDKT6A56NWMImpoUakDC2YDevgaOpJQ7Qc/': {
 			name: 'Schedule table',

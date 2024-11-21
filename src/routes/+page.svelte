@@ -363,8 +363,7 @@
 		size="icon"
 		class="fixed right-14 top-2.5 z-40 md:right-16 md:top-3.5"
 		onclick={() => {
-			if (selectedYear || selectedGroup) {
-				selectedGroup = 'ИСП-921';
+			if (selectedYear && selectedGroup) {
 				navigator.clipboard.writeText(
 					`${window.location.origin}?year=${encodeURI(selectedYear)}&group=${encodeURI(selectedGroup)}`
 				);

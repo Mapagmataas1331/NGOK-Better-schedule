@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
+	import { page } from '$app/stores';
 	import * as Select from '$shared/components/ui/select';
 	import * as Command from '$shared/components/ui/command/index.js';
 	import * as Popover from '$shared/components/ui/popover/index.js';
 	import { Button } from '$shared/components/ui/button/index.js';
 	import { RangeCalendar } from '$shared/components/ui/range-calendar/index.js';
-	import * as Alert from '$shared/components/ui/alert/index.js';
 	import * as Table from '$shared/components/ui/table';
+	import * as Alert from '$shared/components/ui/alert/index.js';
+	import { toast } from 'svelte-sonner';
 	import Separator from '$shared/components/ui/separator/separator.svelte';
 	import Skeleton from '$shared/components/ui/skeleton/skeleton.svelte';
 	import Ban from 'lucide-svelte/icons/ban';
@@ -15,6 +17,7 @@
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import Calendar from 'lucide-svelte/icons/calendar';
+	import Share from 'lucide-svelte/icons/share';
 	import { cn } from '$shared/utils.js';
 	import { language } from '$shared/stores/language';
 	import { viewport, breakpoints } from '$shared/stores/viewport';
@@ -87,7 +90,7 @@
 		groupVisible = true;
 	};
 
-	const handleGroupChange = () => {
+	const handleGroupChange = (saveLastQuery = true) => {
 		resetSelection();
 		if (!selectedGroup) return;
 		rangeVisible = true;
@@ -98,7 +101,15 @@
 		allDates = extractDates(schedule, params);
 		studyDates = filterStudyDates(schedule, allDates, params);
 
-		if (selectedYear && selectedGroup && selectedRange) buildSchedule();
+		if (selectedYear && selectedGroup && selectedRange) {
+			buildSchedule();
+			if (saveLastQuery) {
+				lastQuery = {
+					year: selectedYear,
+					group: selectedGroup
+				};
+			}
+		}
 	};
 
 	const handleRangeChange = () => {
@@ -162,10 +173,6 @@
 		}, {});
 
 		scheduleStatus = 'visible';
-		lastQuery = {
-			year: selectedYear,
-			group: selectedGroup
-		};
 	};
 
 	const resetSelection = (ifGroup = false) => {
@@ -290,7 +297,7 @@
 		}, {});
 	};
 
-	onMount(() => {
+	onMount(async () => {
 		selectedYear = '';
 
 		lastQuery = {
@@ -302,6 +309,47 @@
 			localStorage.setItem('year', lq.year);
 			localStorage.setItem('group', lq.group);
 		});
+
+		const urlYear = $page.url.searchParams.get('year') || '';
+		const urlGroup = $page.url.searchParams.get('group') || '';
+
+		if (urlYear && urlGroup) {
+			const year = decodeURI(urlYear);
+			const group = decodeURI(urlGroup);
+			if (!yearOptions.includes(year)) {
+				toast.error(
+					$language === 'ru'
+						? `Некорректный курс передан в URL: "${year}"`
+						: `Incorrect year passed in URL: "${year}"`
+				);
+				return;
+			}
+			selectedYear = year;
+			await handleYearChange();
+			if (!groupOptions[group]) {
+				toast.error(
+					$language === 'ru'
+						? `Некорректная группа передана в URL: "${group}"`
+						: `Incorrect group passed in URL: "${group}"`
+				);
+				selectedYear = '';
+				await handleYearChange();
+				return;
+			}
+			selectedGroup = decodeURI(urlGroup);
+			handleGroupChange(false);
+
+			toast.success(
+				$language === 'ru'
+					? `Курс "${year}" и группа "${group}" успешно загружены из URL`
+					: `"${year}" year and "${group}" group are successfully loaded from URL`
+			);
+
+			const url = new URL(window.location.href);
+			url.searchParams.delete('year');
+			url.searchParams.delete('group');
+			history.replaceState({}, '', url.toString());
+		}
 	});
 </script>
 
@@ -310,6 +358,30 @@
 		? 'justify-start'
 		: 'justify-center'} mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center bg-gradient-to-br from-white to-sky-200 px-1 dark:from-sky-800 dark:to-black md:min-h-[calc(100dvh_-_4rem)]"
 >
+	<Button
+		variant="outline"
+		size="icon"
+		class="fixed right-14 top-2.5 z-40 md:right-16 md:top-3.5"
+		onclick={() => {
+			if (selectedYear || selectedGroup) {
+				selectedGroup = 'ИСП-921';
+				navigator.clipboard.writeText(
+					`${window.location.origin}?year=${encodeURI(selectedYear)}&group=${encodeURI(selectedGroup)}`
+				);
+				toast.success(
+					$language === 'ru'
+						? `Ссылка для курса ${selectedYear}, группы "${selectedGroup}" скопирована в буфер обмена!`
+						: `Link for ${selectedYear} year, "${selectedGroup}" group copied to clipboard!`
+				);
+			} else {
+				toast.error(
+					$language === 'ru' ? 'Сначала выберите курс и группу' : 'Select a year and group first'
+				);
+			}
+		}}
+	>
+		<Share />
+	</Button>
 	<div class="md:1/2 m-1 mt-3 flex w-full flex-col gap-y-2 md:w-[512px]">
 		<div class="flex flex-col gap-2 md:flex-row">
 			<Select.Root
@@ -517,7 +589,7 @@
 					selectedYear = lastQuery.year;
 					await handleYearChange();
 					selectedGroup = lastQuery.group;
-					handleGroupChange();
+					handleGroupChange(false);
 				}}
 			>
 				<MousePointerClick class="ml-1 mr-2.5 !size-6" />

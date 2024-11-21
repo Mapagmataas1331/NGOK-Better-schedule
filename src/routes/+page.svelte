@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import * as Select from '$shared/components/ui/select';
+	import * as Command from '$shared/components/ui/command/index.js';
+	import * as Popover from '$shared/components/ui/popover/index.js';
+	import { Button } from '$shared/components/ui/button/index.js';
 	import { RangeCalendar } from '$shared/components/ui/range-calendar/index.js';
-	import Button from '$shared/components/ui/button/button.svelte';
 	import * as Alert from '$shared/components/ui/alert/index.js';
 	import * as Table from '$shared/components/ui/table';
 	import Separator from '$shared/components/ui/separator/separator.svelte';
@@ -10,7 +12,10 @@
 	import Ban from 'lucide-svelte/icons/ban';
 	import Sticker from 'lucide-svelte/icons/sticker';
 	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
+	import Check from 'lucide-svelte/icons/check';
+	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import Calendar from 'lucide-svelte/icons/calendar';
+	import { cn } from '$shared/utils.js';
 	import { language } from '$shared/stores/language';
 	import { viewport, breakpoints } from '$shared/stores/viewport';
 	import { fetchTableData } from '$lib/utils/fetchTableData';
@@ -27,6 +32,16 @@
 
 	let selectedYear = $state('');
 	let selectedGroup = $state('');
+
+	let groupSelectOpen = $state(false);
+	let triggerRef = $state<HTMLButtonElement>(null!);
+	function closeAndFocusTrigger() {
+		groupSelectOpen = false;
+		tick().then(() => {
+			triggerRef.focus();
+		});
+	}
+
 	let selectedRange: DateRange = $state({
 		start: today(getLocalTimeZone()),
 		end: today(getLocalTimeZone()).add({ days: 6 })
@@ -291,11 +306,11 @@
 </script>
 
 <div
-	class="{rangeVisible
+	class="{groupVisible
 		? 'justify-start'
 		: 'justify-center'} mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center bg-gradient-to-br from-white to-sky-200 px-1 dark:from-sky-800 dark:to-black md:min-h-[calc(100dvh_-_4rem)]"
 >
-	<div class="m-1 mt-3 flex w-full min-w-[256px] flex-col gap-y-2 md:w-2/3 lg:w-1/2 2xl:w-1/3">
+	<div class="md:1/2 m-1 mt-3 flex w-full flex-col gap-y-2 md:w-[512px]">
 		<div class="flex flex-col gap-2 md:flex-row">
 			<Select.Root
 				type="single"
@@ -303,14 +318,16 @@
 				bind:value={selectedYear}
 				onValueChange={handleYearChange}
 			>
-				<Select.Trigger class="w-full bg-background shadow-md">
+				<Select.Trigger
+					class="w-full bg-background px-3 py-2 pr-[9px] shadow-md [&>svg]:size-[22px]"
+				>
 					{selectedYear
 						? selectedYear + ' ' + ($language === 'ru' ? 'курс' : 'year')
 						: $language === 'ru'
 							? 'Выберите курс'
 							: 'Select year'}
 				</Select.Trigger>
-				<Select.Content>
+				<Select.Content class="z-10 max-h-[256px] overflow-y-auto">
 					<Select.Item value="">{$language === 'ru' ? 'Сброс' : 'Reset'}</Select.Item>
 					{#each yearOptions as option}
 						<Select.Item value={option}>{option} {$language === 'ru' ? 'курс' : 'year'}</Select.Item
@@ -320,25 +337,54 @@
 			</Select.Root>
 
 			{#if groupVisible}
-				<Select.Root
-					type="single"
-					name="groupSelect"
-					bind:value={selectedGroup}
-					onValueChange={handleGroupChange}
-				>
-					<Select.Trigger class="w-full bg-background">
-						{selectedGroup
-							? selectedGroup
-							: $language === 'ru'
-								? 'Выберите группу'
-								: 'Select group'}
-					</Select.Trigger>
-					<Select.Content class="max-h-[256px] overflow-y-auto">
-						{#each Object.keys(groupOptions) as group}
-							<Select.Item value={group}>{group}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
+				<Popover.Root bind:open={groupSelectOpen}>
+					<Popover.Trigger bind:ref={triggerRef}>
+						{#snippet child({ props })}
+							<Button
+								variant="outline"
+								class="w-full justify-between px-3 py-2"
+								{...props}
+								role="combobox"
+								aria-expanded={groupSelectOpen}
+							>
+								{selectedGroup
+									? selectedGroup
+									: $language === 'ru'
+										? 'Выберите группу'
+										: 'Select a group'}
+								<ChevronsUpDown class="opacity-50" />
+							</Button>
+						{/snippet}
+					</Popover.Trigger>
+					<Popover.Content class="z-10 mt-[3px] w-[calc(100dvw-8px)] p-0 md:w-[256px]">
+						<Command.Root>
+							<Command.Input
+								placeholder={$language === 'ru' ? 'Искать группу' : 'Search for a group'}
+								class="h-9"
+							/>
+							<Command.List>
+								<Command.Empty
+									>{$language === 'ru' ? 'Нет результатов' : 'No results'}</Command.Empty
+								>
+								<Command.Group class="max-h-[256px] overflow-y-auto">
+									{#each Object.keys(groupOptions) as group}
+										<Command.Item
+											value={group}
+											onSelect={() => {
+												selectedGroup = group;
+												handleGroupChange();
+												closeAndFocusTrigger();
+											}}
+										>
+											<Check class={cn(selectedGroup !== group && 'text-transparent')} />
+											{group}
+										</Command.Item>
+									{/each}
+								</Command.Group>
+							</Command.List>
+						</Command.Root>
+					</Popover.Content>
+				</Popover.Root>
 			{/if}
 		</div>
 
@@ -372,7 +418,7 @@
 	</div>
 
 	{#if scheduleStatus === 'error'}
-		<Alert.Root class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3">
+		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
 			<Ban class="size-8" />
 			<Alert.Title class="!pl-12"
 				>{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}</Alert.Title
@@ -380,22 +426,22 @@
 			<Alert.Description class="!pl-12">{scheduleError}</Alert.Description>
 		</Alert.Root>
 	{:else if scheduleStatus === 'loading'}
-		<Skeleton class="my-1 h-8 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3" />
+		<Skeleton class="md:1/2 my-1 h-8 w-full md:w-[512px]" />
 	{:else if scheduleStatus === 'visible' && buildedSchedule}
 		<div
 			class="mx-auto my-1.5 grid grid-cols-1 justify-items-center gap-x-2 gap-y-3 md:p-2{Object.keys(
 				buildedSchedule
 			).length > 1
 				? ' lg:grid-cols-2 '
-				: ''}{Object.keys(buildedSchedule).length > 2 ? ' xl:grid-cols-3 ' : ''}{Object.keys(
+				: ''}{Object.keys(buildedSchedule).length > 2 ? ' 2xl:grid-cols-3 ' : ''}{Object.keys(
 				buildedSchedule
 			).length > 3
-				? '2xl:grid-cols-4'
+				? ' min-[1792px]:grid-cols-4'
 				: ''}"
 		>
 			{#each Object.entries(buildedSchedule) as [key, day]}
 				<div
-					class="w-full min-w-[256px] max-w-[640px] rounded-md border bg-background p-1 shadow-md"
+					class="w-full min-w-[256px] max-w-[512px] rounded-md border bg-background p-1 shadow-md"
 				>
 					<Table.Root>
 						<Table.Header
@@ -466,7 +512,7 @@
 		{#if lastQuery.year && lastQuery.group}
 			<Button
 				variant="outline"
-				class="my-1 w-full min-w-[256px] !justify-start md:w-2/3 lg:w-1/2 2xl:w-1/3"
+				class="md:1/2 my-1 w-full !justify-start md:w-[512px]"
 				onclick={async () => {
 					selectedYear = lastQuery.year;
 					await handleYearChange();
@@ -482,7 +528,7 @@
 				</p>
 			</Button>
 		{/if}
-		<Alert.Root class="my-1 w-full min-w-[256px] md:w-2/3 lg:w-1/2 2xl:w-1/3">
+		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
 			<Sticker class="size-8" />
 			<Alert.Title class="!pl-12">
 				{#if $language === 'ru'}

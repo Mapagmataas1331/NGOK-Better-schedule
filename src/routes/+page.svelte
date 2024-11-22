@@ -379,7 +379,7 @@
 			}
 		}}
 	>
-		<Share />
+		<Share class="!size-5" />
 	</Button>
 	<div class="md:1/2 m-1 mt-3 flex w-full flex-col gap-y-2 md:w-[512px]">
 		<div class="flex flex-col gap-2 md:flex-row">

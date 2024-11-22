@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 	import { page } from '$app/stores';
 	import * as Select from '$shared/components/ui/select';
 	import * as Command from '$shared/components/ui/command/index.js';
@@ -70,24 +70,61 @@
 	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' | '' = $state('');
 	let scheduleError: string | null = $state(null);
 
+	let interval: ReturnType<typeof setInterval> | null = null;
+
 	const handleYearChange = async () => {
 		resetSelection(true);
 		if (!selectedYear) return;
 		scheduleStatus = 'loading';
 		const data = await fetchTableData(selectedYear);
+		if (data.scheduleError || !data.schedule) {
+			if (scheduleError || !schedule) {
+				scheduleStatus = 'error';
+				scheduleError = data.scheduleError;
+				interval && clearInterval(interval);
+				return;
+			}
+		}
 		schedule = data.schedule;
 		scheduleError = data.scheduleError;
-		if (scheduleError || !schedule) {
-			scheduleStatus = 'error';
-			return;
-		}
+		await tick();
 
 		scheduleStatus = 'hidden';
 		params = extractParams();
-		curWeek = schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0] || null;
+		curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
 		timeIntervals = extractTimeIntervals();
 		groupOptions = extractGroups();
 		groupVisible = true;
+
+		if (interval) clearInterval(interval);
+		await tick();
+		interval = setInterval(async () => {
+			if (!selectedYear) {
+				interval && clearInterval(interval);
+				return;
+			}
+			const data = await fetchTableData(selectedYear);
+			if (data.scheduleError || !data.schedule) {
+				if (scheduleError || !schedule) {
+					scheduleStatus = 'error';
+					scheduleError = data.scheduleError;
+					interval && clearInterval(interval);
+					return;
+				}
+			}
+			schedule = data.schedule;
+			console.log('- Schedule updated at', new Date());
+
+			params = extractParams();
+			curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
+			timeIntervals = extractTimeIntervals();
+			groupOptions = extractGroups();
+			if (!selectedGroup) {
+				interval && clearInterval(interval);
+				return;
+			}
+			buildSchedule();
+		}, 300000);
 	};
 
 	const handleGroupChange = (saveLastQuery = true) => {
@@ -187,6 +224,7 @@
 			scheduleStatus = '';
 			groupVisible = false;
 			selectedGroup = '';
+			schedule = null;
 		}
 	};
 
@@ -350,6 +388,10 @@
 			url.searchParams.delete('group');
 			history.replaceState({}, '', url.toString());
 		}
+	});
+
+	onDestroy(() => {
+		interval && clearInterval(interval);
 	});
 </script>
 

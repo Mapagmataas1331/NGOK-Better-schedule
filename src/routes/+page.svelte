@@ -431,9 +431,7 @@
 				bind:value={selectedYear}
 				onValueChange={handleYearChange}
 			>
-				<Select.Trigger
-					class="w-full bg-background px-3 py-2 pr-[9px] shadow-md [&>svg]:size-[22px]"
-				>
+				<Select.Trigger class="w-full bg-background shadow-md">
 					{selectedYear
 						? selectedYear + ' ' + ($language === 'ru' ? 'курс' : 'year')
 						: $language === 'ru'

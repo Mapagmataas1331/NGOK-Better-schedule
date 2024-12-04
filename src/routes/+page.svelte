@@ -58,7 +58,14 @@
 	let params: { [key: string]: number } = {};
 	let studyDates: { [key: string]: number } = $state({});
 	let curWeek: string | null = null;
-	let timeIntervals: { [key: string]: number } = $state({});
+	let timeIntervals = [
+		'09.00-10.30',
+		'10.40-12.10',
+		'12.30-14.00',
+		'14.20-15.50',
+		'16.00-17.30',
+		'17.40-19.10'
+	];
 	let allDates = {};
 
 	let yearOptions: string[] = ['1', '2', '3', '4'];
@@ -92,7 +99,6 @@
 		scheduleStatus = 'hidden';
 		params = extractParams();
 		curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
-		timeIntervals = extractTimeIntervals();
 		groupOptions = extractGroups();
 		groupVisible = true;
 
@@ -117,7 +123,6 @@
 
 			params = extractParams();
 			curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
-			timeIntervals = extractTimeIntervals();
 			groupOptions = extractGroups();
 			if (!selectedGroup) {
 				interval && clearInterval(interval);
@@ -184,11 +189,7 @@
 
 			let lessons: Lesson[] = [];
 			if (isStudyDay) {
-				for (
-					let i = studyDates[date];
-					i < studyDates[date] + Object.keys(timeIntervals).length;
-					i++
-				) {
+				for (let i = studyDates[date]; i < studyDates[date] + timeIntervals.length; i++) {
 					const discipline = schedule[i][params['Дисциплины']];
 					const auditorium = schedule[i][params['Ауд.']];
 					const time = schedule[i][params['Часы']];
@@ -254,19 +255,6 @@
 		}, {});
 	};
 
-	const extractTimeIntervals = () => {
-		if (!schedule) {
-			scheduleError = 'Error: Schedule is null';
-			scheduleStatus = 'error';
-			return {};
-		}
-		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
-			const time = row[params['Часы']];
-			if (index > 0 && time && time !== 'Часы') acc[time] = index;
-			return acc;
-		}, {});
-	};
-
 	const extractGroups = () => {
 		if (!schedule) {
 			scheduleError = 'Error: Schedule is null';
@@ -311,7 +299,7 @@
 		}
 		return Object.entries(allDates).reduce(
 			(acc, [date, index]) => {
-				for (let i = index; i < index + Object.keys(timeIntervals).length; i++) {
+				for (let i = index; i < index + timeIntervals.length; i++) {
 					if (schedule[i][params['Дисциплины']]) acc[date] = index;
 				}
 				return acc;
@@ -572,7 +560,7 @@
 						</Table.Header>
 						<Table.Body class="bg-background">
 							{#if studyDates[key]}
-								{#if day[0].time !== Object.keys(timeIntervals)[0]}
+								{#if day[0].time !== timeIntervals[0]}
 									<Table.Row>
 										<Table.Cell class="text-center font-semibold italic" colspan={2}>
 											{$language === 'ru' ? 'Пары начинаются с' : 'Lessons start at'}

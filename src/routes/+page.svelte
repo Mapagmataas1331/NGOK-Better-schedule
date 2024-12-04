@@ -119,11 +119,12 @@
 				}
 			}
 			schedule = data.schedule;
-			console.log('- Schedule updated at', new Date());
+			toast.success(
+				$language === 'ru'
+					? 'Расписание обновлено в ' + new Date().toLocaleString('ru-RU', { hour12: false })
+					: 'Schedule updated at ' + new Date().toLocaleString('en-US', { hour12: false })
+			);
 
-			params = extractParams();
-			curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
-			groupOptions = extractGroups();
 			if (!selectedGroup) {
 				interval && clearInterval(interval);
 				return;

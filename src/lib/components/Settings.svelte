@@ -13,7 +13,6 @@
 	}
 </script>
 
-<!-- svelte-ignore non_reactive_update -->
 <script lang="ts">
 	import * as Select from './ui/select/index.js';
 
@@ -23,10 +22,10 @@
 
 	let { additionalSettings = null }: { additionalSettings?: { [key: string]: Setting } | null } =
 		$props();
-	let clazz = '';
+	let clazz = $state('');
 	export { clazz as class };
 
-	let settings: { [key: string]: Setting } = {
+	let settings: { [key: string]: Setting } = $state({
 		theme: {
 			store: theme,
 			name: 'Theme',
@@ -45,9 +44,11 @@
 				{ label: 'Russian', labelRu: 'Русский', value: 'ru' }
 			]
 		}
-	};
+	});
 
-	settings = { ...settings, ...(additionalSettings ?? {}) };
+	$effect(() => {
+		settings = { ...settings, ...(additionalSettings ?? {}) };
+	});
 
 	const triggerContent = (setting: Setting) => {
 		const selectedValue = setting.values.find(

@@ -57,7 +57,7 @@
 	let schedule: string[][] | null = null;
 	let params: { [key: string]: number } = {};
 	let studyDates: { [key: string]: number } = $state({});
-	let curWeek: string | null = null;
+	//let curWeek: string | null = null;
 	let timeIntervals = [
 		'09.00-10.30',
 		'10.40-12.10',
@@ -98,7 +98,7 @@
 
 		scheduleStatus = 'hidden';
 		params = extractParams();
-		curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
+		//curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
 		groupOptions = extractGroups();
 		groupVisible = true;
 

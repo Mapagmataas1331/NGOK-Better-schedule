@@ -1,9 +1,9 @@
 <script lang="ts">
-	import * as Select from '$shared/components/ui/select';
-	import Button from '$shared/components/ui/button/button.svelte';
-	import Skeleton from '$shared/components/ui/skeleton/skeleton.svelte';
-	import { Input } from '$shared/components/ui/input/index.js';
-	import { language } from '$shared/stores/language';
+	import * as Select from '$lib/components/ui/select';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { language } from '$lib/stores/language';
 	import { colToLetter, buildHref, fetchTableData } from '$lib/utils/fetchTableData';
 
 	const schedule: { [year: string]: string[][] } = {};

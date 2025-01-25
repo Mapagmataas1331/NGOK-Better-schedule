@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Header from '$shared/components/Header.svelte';
-	import { Toaster } from '$shared/components/ui/sonner/index.js';
-	import Footer from '$shared/components/Footer.svelte';
+	import Header from '$lib/components/Header.svelte';
+	import { Toaster } from '$lib/components/ui/sonner/index.js';
+	import Footer from '$lib/components/Footer.svelte';
 	import Logo from '$lib/components/Logo.svelte';
-	import '@/app.scss';
+	import '$lib/../app.scss';
 
 	let { children } = $props();
 </script>

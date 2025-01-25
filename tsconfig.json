@@ -9,12 +9,6 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"moduleResolution": "bundler",
-		"paths": {
-			"$lib": ["./src/lib"],
-			"$lib/*": ["./src/lib/*"],
-			"$shared": ["./src/lib/shared"],
-			"$shared/*": ["./src/lib/shared/*"]
-		}
+		"moduleResolution": "bundler"
 	}
 }

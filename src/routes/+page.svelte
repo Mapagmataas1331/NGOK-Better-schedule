@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { page } from '$app/stores';
-	import * as Select from '$shared/components/ui/select';
-	import * as Command from '$shared/components/ui/command/index.js';
-	import * as Popover from '$shared/components/ui/popover/index.js';
-	import { Button } from '$shared/components/ui/button/index.js';
-	import { RangeCalendar } from '$shared/components/ui/range-calendar/index.js';
-	import * as Table from '$shared/components/ui/table';
-	import * as Alert from '$shared/components/ui/alert/index.js';
+	import * as Select from '$lib/components/ui/select';
+	import * as Command from '$lib/components/ui/command/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { RangeCalendar } from '$lib/components/ui/range-calendar/index.js';
+	import * as Table from '$lib/components/ui/table';
+	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { toast } from 'svelte-sonner';
-	import Separator from '$shared/components/ui/separator/separator.svelte';
-	import Skeleton from '$shared/components/ui/skeleton/skeleton.svelte';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import Ban from 'lucide-svelte/icons/ban';
 	import Sticker from 'lucide-svelte/icons/sticker';
 	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
@@ -18,9 +18,9 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import Calendar from 'lucide-svelte/icons/calendar';
 	import Share from 'lucide-svelte/icons/share';
-	import { cn } from '$shared/utils.js';
-	import { language } from '$shared/stores/language';
-	import { viewport, breakpoints } from '$shared/stores/viewport';
+	import { cn } from '$lib/utils.js';
+	import { language } from '$lib/stores/language';
+	import { viewport, breakpoints } from '$lib/stores/viewport';
 	import { fetchTableData } from '$lib/utils/fetchTableData';
 	import { dateValueToDate, dateValueToString } from '$lib/utils/formatDate';
 	import { getLocalTimeZone, today } from '@internationalized/date';

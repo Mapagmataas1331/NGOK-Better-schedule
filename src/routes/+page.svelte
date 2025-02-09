@@ -530,7 +530,7 @@
 	{:else if scheduleStatus === 'visible' && buildedSchedule}
 		{#if selectedYear === '4'}
 			<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-				<Ban class="size-8 text-red-700 dark:text-red-400" />
+				<Ban class="size-8 !text-red-700 dark:!text-red-400" />
 				<Alert.Title class="!pl-12 font-bold text-red-700 dark:text-red-400"
 					>Проблемы с Расписанием!</Alert.Title
 				>

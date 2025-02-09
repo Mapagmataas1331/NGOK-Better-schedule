@@ -528,6 +528,22 @@
 	{:else if scheduleStatus === 'loading'}
 		<Skeleton class="md:1/2 my-1 h-8 w-full md:w-[512px]" />
 	{:else if scheduleStatus === 'visible' && buildedSchedule}
+		{#if selectedYear === '4'}
+			<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
+				<Ban class="size-8 text-red-700 dark:text-red-400" />
+				<Alert.Title class="!pl-12 font-bold text-red-700 dark:text-red-400"
+					>Проблемы с Расписанием!</Alert.Title
+				>
+				<Alert.Description class="!pl-12">
+					<p>
+						В таблице рассписания для 4-ого курса перепутали даты: <i
+							>10.022025, 10.022026, 10.022027...</i
+						>
+					</p>
+					<p>Я с этим ничего поделать не могу( смотрите расписание в таблице.</p>
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
 		<div
 			class="mx-auto my-1.5 grid grid-cols-1 justify-items-center gap-x-2 gap-y-3 md:p-2{Object.keys(
 				buildedSchedule

@@ -389,7 +389,7 @@
 		? 'justify-start'
 		: 'justify-center'} mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center bg-gradient-to-br from-white to-sky-200 px-1 dark:from-sky-800 dark:to-black md:min-h-[calc(100dvh_-_4rem)]"
 >
-	{#if scheduleStatus !== 'hidden'}
+	{#if scheduleStatus === ''}
 		<div class="absolute top-[20dvh]">
 			<h1 class="mb-4 text-center text-3xl font-bold md:text-4xl">
 				{$language === 'ru' ? 'Расписание НГОК' : 'NGOK Schedule'}

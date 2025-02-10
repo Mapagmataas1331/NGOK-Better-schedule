@@ -12,8 +12,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import Ban from 'lucide-svelte/icons/ban';
-	import CircleCheck from 'lucide-svelte/icons/circle-check';
-	import Sticker from 'lucide-svelte/icons/sticker';
+	import HeartHandshake from 'lucide-svelte/icons/heart-handshake';
 	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
@@ -390,6 +389,18 @@
 		? 'justify-start'
 		: 'justify-center'} mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center bg-gradient-to-br from-white to-sky-200 px-1 dark:from-sky-800 dark:to-black md:min-h-[calc(100dvh_-_4rem)]"
 >
+	{#if scheduleStatus !== 'hidden'}
+		<div class="absolute top-[20dvh]">
+			<h1 class="mb-4 text-center text-3xl font-bold md:text-4xl">
+				{$language === 'ru' ? 'Расписание НГОК' : 'NGOK Schedule'}
+			</h1>
+			<p class=" text-center">
+				{$language === 'ru'
+					? 'Выберите курс и группу, чтобы увидеть расписание'
+					: 'Select a year and group to see the schedule'}
+			</p>
+		</div>
+	{/if}
 	<Button
 		variant="outline"
 		size="icon"
@@ -529,18 +540,6 @@
 	{:else if scheduleStatus === 'loading'}
 		<Skeleton class="md:1/2 my-1 h-8 w-full md:w-[512px]" />
 	{:else if scheduleStatus === 'visible' && buildedSchedule}
-		{#if selectedYear === '4'}
-			<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-				<CircleCheck class="size-8 !text-green-700 dark:!text-green-400" />
-				<Alert.Title class="!pl-12 font-bold text-green-700 dark:text-green-400"
-					>Проблемы с Расписанием Исправлены!</Alert.Title
-				>
-				<Alert.Description class="!pl-12">
-					Благодарность принимаю подписками на
-					<i class="hover:underline"><a href="https://github.com/Mapagmataas1331">GitHub</a></i> )
-				</Alert.Description>
-			</Alert.Root>
-		{/if}
 		<div
 			class="mx-auto my-1.5 grid grid-cols-1 justify-items-center gap-x-2 gap-y-3 md:p-2{Object.keys(
 				buildedSchedule
@@ -625,7 +624,7 @@
 		{#if lastQuery.year && lastQuery.group}
 			<Button
 				variant="outline"
-				class="md:1/2 my-1 w-full !justify-start md:w-[512px]"
+				class="md:1/2 my-1 w-full !justify-start py-5 md:w-[512px]"
 				onclick={async () => {
 					selectedYear = lastQuery.year;
 					await handleYearChange();
@@ -633,21 +632,20 @@
 					handleGroupChange(false);
 				}}
 			>
-				<MousePointerClick class="ml-1 mr-2.5 !size-6" />
+				<MousePointerClick class="ml-1 mr-2.5 !size-6 !text-cyan-700 dark:!text-cyan-400" />
 				<p>{$language === 'ru' ? 'Последний запрос: ' : 'Last query:'}</p>
-				<p class="font-semibold">
+				<p class="font-semibold !text-cyan-700 dark:!text-cyan-400">
 					{lastQuery.year}
 					{$language === 'ru' ? 'курс' : 'year'}, {lastQuery.group}
 				</p>
 			</Button>
 		{/if}
 		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-			<Sticker class="size-8" />
+			<HeartHandshake class="size-8 !text-green-700 dark:!text-green-400" />
 			<Alert.Title class="!pl-12">
 				{#if $language === 'ru'}
-					Лучшая благодарность <a class="font-semibold hover:underline" href="https://ma.cyou/"
-						>Автору</a
-					>
+					Лучшая <span class="!text-green-700 dark:!text-green-400">благодарность</span>
+					<a class="font-semibold hover:underline" href="https://ma.cyou/">Автору</a>
 				{:else}
 					Best Thanks to the <a class="font-semibold hover:underline" href="https://ma.cyou/"
 						>Author</a
@@ -657,21 +655,23 @@
 			<Alert.Description class="!pl-12">
 				{#if $language === 'ru'}
 					это подписка на <a
-						class="font-semibold hover:underline"
+						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
 						href="https://github.com/Mapagmataas1331">GitHub</a
 					>
 					и звездочка на
-					<a class="font-semibold hover:underline" href="https://github.com/Mapagmataas1331/ma"
-						>Репозиторий</a
+					<a
+						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						href="https://github.com/Mapagmataas1331/ma">Репозиторий</a
 					>
 				{:else}
 					is a subscription on <a
-						class="font-semibold hover:underline"
+						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
 						href="https://github.com/Mapagmataas1331">GitHub</a
 					>
 					and a star on
-					<a class="font-semibold hover:underline" href="https://github.com/Mapagmataas1331/ma"
-						>Repository</a
+					<a
+						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						href="https://github.com/Mapagmataas1331/ma">Repository</a
 					>
 				{/if}
 			</Alert.Description>

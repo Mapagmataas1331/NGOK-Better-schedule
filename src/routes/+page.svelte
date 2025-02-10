@@ -12,6 +12,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import Ban from 'lucide-svelte/icons/ban';
+	import CircleCheck from 'lucide-svelte/icons/circle-check';
 	import Sticker from 'lucide-svelte/icons/sticker';
 	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
 	import Check from 'lucide-svelte/icons/check';
@@ -530,17 +531,13 @@
 	{:else if scheduleStatus === 'visible' && buildedSchedule}
 		{#if selectedYear === '4'}
 			<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-				<Ban class="size-8 !text-red-700 dark:!text-red-400" />
-				<Alert.Title class="!pl-12 font-bold text-red-700 dark:text-red-400"
-					>Проблемы с Расписанием!</Alert.Title
+				<CircleCheck class="size-8 !text-green-700 dark:!text-green-400" />
+				<Alert.Title class="!pl-12 font-bold text-green-700 dark:text-green-400"
+					>Проблемы с Расписанием Исправлены!</Alert.Title
 				>
 				<Alert.Description class="!pl-12">
-					<p>
-						В таблице рассписания для 4-ого курса перепутали даты: <i
-							>10.022025, 10.022026, 10.022027...</i
-						>
-					</p>
-					<p>Я с этим ничего поделать не могу( смотрите расписание в таблице.</p>
+					Благодарность принимаю подписками на
+					<i class="hover:underline"><a href="https://github.com/Mapagmataas1331">GitHub</a></i> )
 				</Alert.Description>
 			</Alert.Root>
 		{/if}

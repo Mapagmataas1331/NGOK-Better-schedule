@@ -517,7 +517,7 @@
 						</Table.Header>
 						<Table.Body class="bg-background">
 							{#if day.length > 0}
-								{#if day[0].time !== '09:00 - 10:30'}
+								{#if !day[0].time.startsWith('09:00')}
 									<Table.Row>
 										<Table.Cell class="text-center font-semibold italic" colspan={2}>
 											{$language === 'ru' ? 'Пары начинаются с' : 'Lessons start at'}

@@ -16,7 +16,7 @@
 		'/old/': { name: 'Old', nameRu: 'Старое' }
 	}}
 	title="НГОК"
-	titleLink="https://opencollege-nsk.ru/"
+	titleLink="/home/"
 	{Logo}
 	profile={false}
 />

@@ -392,7 +392,7 @@
 	{#if scheduleStatus === ''}
 		<div class="absolute top-[20dvh]">
 			<h1 class="mb-4 text-center text-3xl font-bold md:text-4xl">
-				{$language === 'ru' ? 'Расписание НГОК' : 'NGOK Schedule'}
+				{$language === 'ru' ? 'Старое Расписание НГОК' : 'NGOK Schedule'}
 			</h1>
 			<p class=" text-center">
 				{$language === 'ru'

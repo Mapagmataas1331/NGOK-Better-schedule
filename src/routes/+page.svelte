@@ -383,11 +383,19 @@
 						</Button>
 					{/snippet}
 				</Popover.Trigger>
-				<Popover.Content class="z-10 mt-[3px] w-[calc(100dvw-8px)] p-0 md:w-[256px]">
+				<Popover.Content class="z-10 mt-[3px] w-[calc(100dvw-8px)] p-0 md:w-[320px]">
 					<Command.Root>
 						<Command.Input
 							placeholder={$language === 'ru' ? 'Искать группу' : 'Search for a group'}
 							class="h-9"
+							onfocus={() => {
+								if ($viewport.vw < breakpoints.md) {
+									window.scrollTo({
+										top: window.scrollY + triggerRef.getBoundingClientRect().top - 8,
+										behavior: 'smooth'
+									});
+								}
+							}}
 						/>
 						<Command.List>
 							<Command.Empty>{$language === 'ru' ? 'Нет результатов' : 'No results'}</Command.Empty>

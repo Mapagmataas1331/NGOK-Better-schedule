@@ -269,7 +269,7 @@
 	};
 
 	onMount(async () => {
-		await onLoad();
+		onLoad();
 
 		lastQuery = localStorage.getItem('lq') || '';
 
@@ -281,28 +281,41 @@
 
 		if (urlQ) {
 			const qGroup = decodeURI(urlQ);
-			if (!groupOptions[qGroup]) {
-				toast.error(
+			const parseUrl = () => {
+				if (!groupOptions[qGroup]) {
+					toast.error(
+						$language === 'ru'
+							? `Некорректная группа передана в URL: "${qGroup}"`
+							: `Incorrect group passed in URL: "${qGroup}"`
+					);
+					return;
+				}
+				selectedGroup = qGroup;
+				handleGroupChange(false);
+
+				toast.success(
 					$language === 'ru'
-						? `Некорректная группа передана в URL: "${qGroup}"`
-						: `Incorrect group passed in URL: "${qGroup}"`
+						? `Группа "${qGroup}" успешно загружена из URL`
+						: `"${qGroup}" group are successfully loaded from URL`
 				);
-				return;
+
+				const url = new URL(window.location.href);
+				url.searchParams.delete('year');
+				url.searchParams.delete('group');
+				url.searchParams.delete('q');
+				history.replaceState({}, '', url.toString());
+			};
+
+			if (schedule) {
+				parseUrl();
+			} else {
+				const checkSchedule = setInterval(() => {
+					if (schedule) {
+						clearInterval(checkSchedule);
+						parseUrl();
+					}
+				}, 500);
 			}
-			selectedGroup = qGroup;
-			handleGroupChange(false);
-
-			toast.success(
-				$language === 'ru'
-					? `Группа "${qGroup}" успешно загружена из URL`
-					: `"${qGroup}" group are successfully loaded from URL`
-			);
-
-			const url = new URL(window.location.href);
-			url.searchParams.delete('year');
-			url.searchParams.delete('group');
-			url.searchParams.delete('q');
-			history.replaceState({}, '', url.toString());
 		}
 	});
 

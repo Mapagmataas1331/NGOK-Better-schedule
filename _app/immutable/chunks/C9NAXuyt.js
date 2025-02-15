@@ -1,0 +1,1 @@
+import{l as n,f as l,c,a as p}from"./CHDbkL9n.js";import{I as d,a as f}from"./4LsEG6DZ.js";import{f as i}from"./BW5O_Kuy.js";function v(s,o){const t=n(o,["children","$$slots","$$events","$$legacy"]);d(s,l({name:"chevron-left"},()=>t,{iconNode:[["path",{d:"m15 18-6-6 6-6"}]],children:(a,$)=>{var e=c(),r=i(e);f(r,o,"default",{},null),p(a,e)},$$slots:{default:!0}}))}export{v as C};

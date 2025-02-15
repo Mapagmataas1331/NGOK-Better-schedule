@@ -8,6 +8,12 @@
     <loc>https://ngok.ma.cyou</loc>
   </url>
   <url>
-    <loc>https://ngok.ma.cyou/debug</loc>
+    <loc>https://ngok.ma.cyou/home</loc>
+  </url>
+  <url>
+    <loc>https://ngok.ma.cyou/old</loc>
+  </url>
+  <url>
+    <loc>https://ngok.ma.cyou/teacher</loc>
   </url>
 </urlset>

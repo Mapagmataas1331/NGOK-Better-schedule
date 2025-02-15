@@ -170,7 +170,7 @@
 
 			let lessons: Lesson[] = [];
 			if (dates[date]) {
-				for (let i = dates[date]; i < dates[getNextDate(date)]; i += 3) {
+				for (let i = dates[date]; i < dates[getNextDate(date)] || i < dates[date] + 6 * 3; i += 3) {
 					const time = schedule[i][params['time']];
 					const discipline = schedule[i][groupOptions[selectedGroup]];
 					const type = schedule[i + 1][groupOptions[selectedGroup]];
@@ -190,6 +190,8 @@
 			}
 
 			acc[date] = lessons;
+			console.log(acc);
+
 			return acc;
 		}, {});
 

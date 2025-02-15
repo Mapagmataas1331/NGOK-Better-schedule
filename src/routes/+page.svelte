@@ -271,10 +271,10 @@
 	onMount(async () => {
 		onLoad();
 
-		lastQuery = localStorage.getItem('lq') || '';
+		lastQuery = localStorage.getItem('slq') || '';
 
-		$effect((lq = lastQuery) => {
-			localStorage.setItem('lq', lq);
+		$effect((slq = lastQuery) => {
+			localStorage.setItem('slq', slq);
 		});
 
 		const urlQ = $page.url.searchParams.get('q') || $page.url.searchParams.get('group') || '';

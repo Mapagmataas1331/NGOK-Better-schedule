@@ -190,8 +190,6 @@
 			}
 
 			acc[date] = lessons;
-			console.log(acc);
-
 			return acc;
 		}, {});
 

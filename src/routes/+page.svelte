@@ -26,22 +26,22 @@
 	import { getLocalTimeZone, today } from '@internationalized/date';
 	import { type DateRange } from 'bits-ui';
 
+	// params
+	// 	date: { x: 0, firstY: 2, step: 3 * 6 },
+	// 	lesNum: { x: 1, firstY: 2, step: 3 },
+	// 	time: { x: 2, firstY: 2, step: 3 },
+	// 	group: { y: 0, firstX: 3, step: 2 },
+	// 	discipline: { firstX: 3, firstY: 2, step: 3 },
+	// 	type: { firstX: 3, firstY: 3, step: 3 },
+	// 	teacher: { firstX: 3, firstY: 4, step: 3 },
+	// 	auditorium: { firstX: 4, firstY: 2, step: 3 }
+
 	type Lesson = {
 		time: string;
 		discipline: string;
 		type: string;
 		teacher: string;
 		auditorium: string;
-	};
-
-	const params = {
-		day: 0,
-		lesNum: 1,
-		time: 2,
-		discipline: 3,
-		type: 3,
-		teacher: 3,
-		auditorium: 4
 	};
 
 	let selectedGroup = $state('');
@@ -171,7 +171,7 @@
 			let lessons: Lesson[] = [];
 			if (dates[date]) {
 				for (let i = dates[date]; i < dates[getNextDate(date)] || i < dates[date] + 6 * 3; i += 3) {
-					const time = schedule[i][params['time']];
+					const time = schedule[i][2];
 					const discipline = schedule[i][groupOptions[selectedGroup]];
 					const type = schedule[i + 1][groupOptions[selectedGroup]];
 					const teacher = schedule[i + 2][groupOptions[selectedGroup]];
@@ -257,7 +257,7 @@
 			return {};
 		}
 		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
-			const dateCell = row[params['day']].split(' ')[1];
+			const dateCell = row[0].split(' ')[1];
 			if (
 				index > 0 &&
 				dateCell &&

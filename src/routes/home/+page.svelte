@@ -51,7 +51,7 @@
 		<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
 			<p class="ml-1 p-px text-sm font-medium md:text-base">
 				{$language === 'ru'
-					? '- Я делаю это один, вас много, а подписка на мой GitHub до сих пор редкость...'
+					? '- Я делаю это все один, вас много, а подписок на GitHub мало... Исправляйтесь...'
 					: '- I’m handling all of this solo, yet you still haven’t hit that GitHub subscribe button...'}
 			</p>
 			<p class="p-px text-sm font-normal md:text-base">

@@ -269,7 +269,7 @@
 	};
 
 	onMount(async () => {
-		onLoad();
+		await onLoad();
 
 		lastQuery = localStorage.getItem('lq') || '';
 

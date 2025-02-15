@@ -388,10 +388,19 @@
 						<Command.Input
 							placeholder={$language === 'ru' ? 'Искать группу' : 'Search for a group'}
 							class="h-9"
-							onfocus={() => {
+							onfocusin={() => {
 								if ($viewport.vw < breakpoints.md) {
 									window.scrollTo({
 										top: window.scrollY + triggerRef.getBoundingClientRect().top - 8,
+										behavior: 'smooth'
+									});
+								}
+							}}
+							onfocusout={() => {
+								if ($viewport.vw < breakpoints.md) {
+									groupSelectOpen = false;
+									window.scrollTo({
+										top: 0,
 										behavior: 'smooth'
 									});
 								}

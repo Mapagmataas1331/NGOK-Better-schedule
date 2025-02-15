@@ -21,8 +21,8 @@
 			</p>
 			<p class="p-px text-sm font-normal md:text-base">
 				{$language === 'ru'
-					? 'Теперь вместо выбора курса и группы идет только выбор группы. Версия для преподавателей появится совсем скоро.'
-					: 'Now, year and group selections has been replaced by only group-selection. A version for teachers is coming soon.'}
+					? 'Теперь вместо выбора курса и группы идет только выбор группы. Версия для преподавателей работает в тестовом режиме.'
+					: 'Now, year and group selections has been replaced by only group-selection. A version for teachers works in test mode.'}
 			</p>
 			<p class="p-px text-sm font-normal md:text-base">
 				{$language === 'ru'

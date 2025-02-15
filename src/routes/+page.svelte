@@ -291,7 +291,7 @@
 					return;
 				}
 				selectedGroup = qGroup;
-				handleGroupChange(false);
+				handleGroupChange();
 
 				toast.success(
 					$language === 'ru'
@@ -354,9 +354,7 @@
 						: `Link for "${selectedGroup}" group copied to clipboard!`
 				);
 			} else {
-				toast.error(
-					$language === 'ru' ? 'Сначала выберите группу' : 'Select a year and group first'
-				);
+				toast.error($language === 'ru' ? 'Сначала выберите группу' : 'Select a group first');
 			}
 		}}
 	>
@@ -495,7 +493,7 @@
 		>
 			{#each Object.entries(buildedSchedule) as [key, day]}
 				<div
-					class="w-full min-w-[256px] max-w-[512px] rounded-md border bg-background p-1 shadow-md"
+					class="w-full min-w-[320px] max-w-[512px] rounded-md border bg-background p-1 shadow-md"
 				>
 					<Table.Root>
 						<Table.Header

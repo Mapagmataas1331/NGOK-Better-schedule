@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { page } from '$app/stores';
+	import * as Select from '$lib/components/ui/select';
 	import * as Command from '$lib/components/ui/command/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -11,7 +12,6 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import Ban from 'lucide-svelte/icons/ban';
-	import X from 'lucide-svelte/icons/x';
 	import HeartHandshake from 'lucide-svelte/icons/heart-handshake';
 	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
 	import Check from 'lucide-svelte/icons/check';
@@ -29,21 +29,11 @@
 	type Lesson = {
 		time: string;
 		discipline: string;
-		type: string;
-		teacher: string;
 		auditorium: string;
+		teacher: string;
 	};
 
-	const params = {
-		day: 0,
-		lesNum: 1,
-		time: 2,
-		discipline: 3,
-		type: 3,
-		teacher: 3,
-		auditorium: 4
-	};
-
+	let selectedYear = $state('');
 	let selectedGroup = $state('');
 
 	let groupSelectOpen = $state(false);
@@ -59,22 +49,41 @@
 		start: today(getLocalTimeZone()),
 		end: today(getLocalTimeZone()).add({ days: 6 })
 	});
-	let lastQuery = $state('');
+	let lastQuery = $state({
+		year: '',
+		group: ''
+	});
 
 	let schedule: string[][] | null = null;
-	let dates: Record<string, number> = {};
+	let params: { [key: string]: number } = {};
+	let studyDates: { [key: string]: number } = $state({});
+	//let curWeek: string | null = null;
+	let timeIntervals = [
+		'09.00-10.30',
+		'10.40-12.10',
+		'12.30-14.00',
+		'14.20-15.50',
+		'16.00-17.30',
+		'17.40-19.10'
+	];
+	let allDates = {};
+
+	let yearOptions: string[] = ['1', '2', '3', '4'];
 	let groupOptions: { [key: string]: number } = $state({});
 	let buildedSchedule: Record<string, Lesson[]> = $state({});
 
+	let groupVisible = $state(false);
 	let rangeVisible = $state(false);
 	let scheduleStatus: 'hidden' | 'visible' | 'loading' | 'error' | '' = $state('');
 	let scheduleError: string | null = $state(null);
 
 	let interval: ReturnType<typeof setInterval> | null = null;
 
-	const onLoad = async () => {
+	const handleYearChange = async () => {
+		resetSelection(true);
+		if (!selectedYear) return;
 		scheduleStatus = 'loading';
-		const data = await fetchTableData('student');
+		const data = await fetchTableData(selectedYear);
 		if (data.scheduleError || !data.schedule) {
 			if (scheduleError || !schedule) {
 				scheduleStatus = 'error';
@@ -88,30 +97,19 @@
 		await tick();
 
 		scheduleStatus = 'hidden';
+		params = extractParams();
+		//curWeek = (schedule && schedule[0][0].match(/\b(\d{2}\.\d{2}\.\d{4})\b/)?.[0]) || null;
 		groupOptions = extractGroups();
-		dates = extractDates();
-	};
-
-	const handleGroupChange = async (saveLastQuery = true) => {
-		resetSelection();
-		if (!selectedGroup) return;
-		rangeVisible = true;
-
-		if (selectedGroup && selectedRange) {
-			buildSchedule();
-			if (saveLastQuery) {
-				lastQuery = selectedGroup;
-			}
-		}
+		groupVisible = true;
 
 		if (interval) clearInterval(interval);
 		await tick();
 		interval = setInterval(async () => {
-			if (!selectedGroup) {
+			if (!selectedYear) {
 				interval && clearInterval(interval);
 				return;
 			}
-			const data = await fetchTableData('student');
+			const data = await fetchTableData(selectedYear);
 			if (data.scheduleError || !data.schedule) {
 				if (scheduleError || !schedule) {
 					scheduleStatus = 'error';
@@ -135,8 +133,30 @@
 		}, 300000);
 	};
 
+	const handleGroupChange = (saveLastQuery = true) => {
+		resetSelection();
+		if (!selectedGroup) return;
+		rangeVisible = true;
+
+		const updatedParams = extractUpdatedParams();
+		Object.assign(params, updatedParams);
+
+		allDates = extractDates(schedule, params);
+		studyDates = filterStudyDates(schedule, allDates, params);
+
+		if (selectedYear && selectedGroup && selectedRange) {
+			buildSchedule();
+			if (saveLastQuery) {
+				lastQuery = {
+					year: selectedYear,
+					group: selectedGroup
+				};
+			}
+		}
+	};
+
 	const handleRangeChange = () => {
-		if (selectedGroup && selectedRange) buildSchedule();
+		if (selectedYear && selectedGroup && selectedRange) buildSchedule();
 	};
 
 	const buildSchedule = () => {
@@ -149,41 +169,39 @@
 		const startDate = dateValueToDate(selectedRange.start);
 		const endDate = dateValueToDate(selectedRange.end);
 
-		let selectedDates = [];
 		let currentDate = startDate;
-
+		let dates = [];
 		while (currentDate <= endDate) {
 			const day = String(currentDate.getDate()).padStart(2, '0');
 			const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-			const year = currentDate.getFullYear().toString().slice(-2);
+			const year = currentDate.getFullYear();
 			const formattedDate = `${day}.${month}.${year}`;
-			selectedDates.push(formattedDate);
+			dates.push(formattedDate);
 			currentDate.setDate(currentDate.getDate() + 1);
 		}
 
-		buildedSchedule = selectedDates.reduce((acc: Record<string, Lesson[]>, date) => {
+		buildedSchedule = dates.reduce((acc: Record<string, Lesson[]>, date) => {
 			if (!schedule) {
 				scheduleError = 'Error: Schedule is null';
 				scheduleStatus = 'error';
 				return {};
 			}
+			const isStudyDay = studyDates[date] !== undefined;
 
 			let lessons: Lesson[] = [];
-			if (dates[date]) {
-				for (let i = dates[date]; i < dates[getNextDate(date)]; i += 3) {
-					const time = schedule[i][params['time']];
-					const discipline = schedule[i][groupOptions[selectedGroup]];
-					const type = schedule[i + 1][groupOptions[selectedGroup]];
-					const teacher = schedule[i + 2][groupOptions[selectedGroup]];
-					const auditorium = schedule[i][groupOptions[selectedGroup] + 1];
+			if (isStudyDay) {
+				for (let i = studyDates[date]; i < studyDates[date] + timeIntervals.length; i++) {
+					const discipline = schedule[i][params['Дисциплины']];
+					const auditorium = schedule[i][params['Ауд.']];
+					const time = schedule[i][params['Часы']];
+					const teacher = schedule[i][params['Преподаватели']];
 
 					if (discipline) {
 						lessons.push({
 							time: time || '',
 							discipline: discipline || '',
-							type: type || '',
-							teacher: teacher || '',
-							auditorium: auditorium || ''
+							auditorium: auditorium || '',
+							teacher: teacher || ''
 						});
 					}
 				}
@@ -196,7 +214,7 @@
 		scheduleStatus = 'visible';
 	};
 
-	const resetSelection = () => {
+	const resetSelection = (ifGroup = false) => {
 		scheduleStatus = 'hidden';
 		buildedSchedule = {};
 		rangeVisible = false;
@@ -204,6 +222,38 @@
 			start: today(getLocalTimeZone()),
 			end: today(getLocalTimeZone()).add({ days: 6 })
 		};
+		if (ifGroup) {
+			scheduleStatus = '';
+			groupVisible = false;
+			selectedGroup = '';
+			schedule = null;
+		}
+	};
+
+	const extractParams = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
+		return schedule[1].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
+			if (cell) acc[cell] = index;
+			return acc;
+		}, {});
+	};
+
+	const extractUpdatedParams = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
+		return schedule[1].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
+			if (index >= groupOptions[selectedGroup] && !acc[cell]) {
+				acc[cell] = index;
+			}
+			return acc;
+		}, {});
 	};
 
 	const extractGroups = () => {
@@ -213,22 +263,12 @@
 			return {};
 		}
 		return schedule[0].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
-			if (index > 2 && cell && !acc[cell]) acc[cell] = index;
+			if (index > 0 && cell) acc[cell] = index;
 			return acc;
 		}, {});
 	};
 
-	const getNextDate = (date: string) => {
-		const [day, month, year] = date.split('.');
-		const dateObj = new Date(`20${year}-${month}-${day}`);
-		dateObj.setDate(dateObj.getDate() + 1);
-		const nextDay = String(dateObj.getDate()).padStart(2, '0');
-		const nextMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
-		const nextYear = dateObj.getFullYear().toString().slice(-2);
-		return `${nextDay}.${nextMonth}.${nextYear}`;
-	};
-
-	const getDayOfWeek = (date: string, lang = 'ru') => {
+	const getDayOfWeek = (dateStr: string, lang = 'ru') => {
 		let daysOfWeek = [];
 		if (lang === 'ru') {
 			daysOfWeek = [
@@ -243,25 +283,41 @@
 		} else {
 			daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 		}
-		const [day, month, year] = date.split('.');
-		const dateObj = new Date(`20${year}-${month}-${day}`);
-		return daysOfWeek[dateObj.getDay()] || 'Неизвестный день!';
+		const [day, month, year] = dateStr.split('.').map(Number);
+		const date = new Date(year, month - 1, day);
+		return daysOfWeek[date.getDay()] || 'Неизвестный день!';
 	};
 
-	const extractDates = () => {
+	const filterStudyDates = (
+		schedule: string[][] | null,
+		allDates: Record<string, number>,
+		params: { [key: string]: number }
+	): Record<string, number> => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
+		return Object.entries(allDates).reduce(
+			(acc, [date, index]) => {
+				for (let i = index; i < index + timeIntervals.length; i++) {
+					if (schedule[i][params['Дисциплины']]) acc[date] = index;
+				}
+				return acc;
+			},
+			{} as Record<string, number>
+		);
+	};
+
+	const extractDates = (schedule: string[][] | null, params: { [key: string]: number }) => {
 		if (!schedule) {
 			scheduleError = 'Error: Schedule is null';
 			scheduleStatus = 'error';
 			return {};
 		}
 		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
-			const dateCell = row[params['day']].split(' ')[1];
-			if (
-				index > 0 &&
-				dateCell &&
-				dateCell !== 'undefined' &&
-				/\b(\d{2}\.\d{2}\.\d{2})\b/.test(dateCell)
-			) {
+			const dateCell = row[params['Дата']];
+			if (index > 1 && dateCell && /\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)) {
 				acc[dateCell] = index;
 			}
 			return acc;
@@ -269,39 +325,56 @@
 	};
 
 	onMount(async () => {
-		onLoad();
+		selectedYear = '';
 
-		lastQuery = localStorage.getItem('lq') || '';
+		lastQuery = {
+			year: localStorage.getItem('year') || '',
+			group: localStorage.getItem('group') || ''
+		};
 
 		$effect((lq = lastQuery) => {
-			localStorage.setItem('lq', lq);
+			localStorage.setItem('year', lq.year);
+			localStorage.setItem('group', lq.group);
 		});
 
-		const urlQ = $page.url.searchParams.get('q') || $page.url.searchParams.get('group') || '';
+		const urlYear = $page.url.searchParams.get('year') || '';
+		const urlGroup = $page.url.searchParams.get('group') || '';
 
-		if (urlQ) {
-			const qGroup = decodeURI(urlQ);
-			if (!groupOptions[qGroup]) {
+		if (urlYear && urlGroup) {
+			const year = decodeURI(urlYear);
+			const group = decodeURI(urlGroup);
+			if (!yearOptions.includes(year)) {
 				toast.error(
 					$language === 'ru'
-						? `Некорректная группа передана в URL: "${qGroup}"`
-						: `Incorrect group passed in URL: "${qGroup}"`
+						? `Некорректный курс передан в URL: "${year}"`
+						: `Incorrect year passed in URL: "${year}"`
 				);
 				return;
 			}
-			selectedGroup = qGroup;
+			selectedYear = year;
+			await handleYearChange();
+			if (!groupOptions[group]) {
+				toast.error(
+					$language === 'ru'
+						? `Некорректная группа передана в URL: "${group}"`
+						: `Incorrect group passed in URL: "${group}"`
+				);
+				selectedYear = '';
+				await handleYearChange();
+				return;
+			}
+			selectedGroup = decodeURI(urlGroup);
 			handleGroupChange(false);
 
 			toast.success(
 				$language === 'ru'
-					? `Группа "${qGroup}" успешно загружена из URL`
-					: `"${qGroup}" group are successfully loaded from URL`
+					? `Курс "${year}" и группа "${group}" успешно загружены из URL`
+					: `"${year}" year and "${group}" group are successfully loaded from URL`
 			);
 
 			const url = new URL(window.location.href);
 			url.searchParams.delete('year');
 			url.searchParams.delete('group');
-			url.searchParams.delete('q');
 			history.replaceState({}, '', url.toString());
 		}
 	});
@@ -312,19 +385,19 @@
 </script>
 
 <div
-	class="{selectedGroup
+	class="{groupVisible
 		? 'justify-start'
 		: 'justify-center'} mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center bg-gradient-to-br from-white to-sky-200 px-1 dark:from-sky-800 dark:to-black md:min-h-[calc(100dvh_-_4rem)]"
 >
-	{#if scheduleStatus !== 'visible'}
+	{#if scheduleStatus === ''}
 		<div class="absolute top-[20dvh]">
 			<h1 class="mb-4 text-center text-3xl font-bold md:text-4xl">
 				{$language === 'ru' ? 'Расписание НГОК' : 'NGOK Schedule'}
 			</h1>
 			<p class=" text-center">
 				{$language === 'ru'
-					? 'Выберите группу, чтобы увидеть расписание'
-					: 'Select a group to see the schedule'}
+					? 'Выберите курс и группу, чтобы увидеть расписание'
+					: 'Select a year and group to see the schedule'}
 			</p>
 		</div>
 	{/if}
@@ -333,16 +406,18 @@
 		size="icon"
 		class="fixed right-14 top-2.5 z-40 md:right-16 md:top-3.5"
 		onclick={() => {
-			if (selectedGroup) {
-				navigator.clipboard.writeText(`${window.location.origin}?q=${encodeURI(selectedGroup)}`);
+			if (selectedYear && selectedGroup) {
+				navigator.clipboard.writeText(
+					`${window.location.origin}?year=${encodeURI(selectedYear)}&group=${encodeURI(selectedGroup)}`
+				);
 				toast.success(
 					$language === 'ru'
-						? `Ссылка для группы "${selectedGroup}" скопирована в буфер обмена!`
-						: `Link for "${selectedGroup}" group copied to clipboard!`
+						? `Ссылка для курса ${selectedYear}, группы "${selectedGroup}" скопирована в буфер обмена!`
+						: `Link for ${selectedYear} year, "${selectedGroup}" group copied to clipboard!`
 				);
 			} else {
 				toast.error(
-					$language === 'ru' ? 'Сначала выберите группу' : 'Select a year and group first'
+					$language === 'ru' ? 'Сначала выберите курс и группу' : 'Select a year and group first'
 				);
 			}
 		}}
@@ -350,65 +425,78 @@
 		<Share class="!size-5" />
 	</Button>
 	<div class="md:1/2 m-1 mt-3 flex w-full flex-col gap-y-2 md:w-[512px]">
-		<div class="flex flex-row gap-0">
-			<Popover.Root bind:open={groupSelectOpen}>
-				<Popover.Trigger bind:ref={triggerRef}>
-					{#snippet child({ props })}
-						<Button
-							variant="outline"
-							class={`w-full justify-between px-3 py-2${selectedGroup ? ' rounded-r-none border-r-0' : ''}`}
-							{...props}
-							role="combobox"
-							aria-expanded={groupSelectOpen}
+		<div class="flex flex-col gap-2 md:flex-row">
+			<Select.Root
+				type="single"
+				name="yearSelect"
+				bind:value={selectedYear}
+				onValueChange={handleYearChange}
+			>
+				<Select.Trigger class="w-full bg-background shadow-md">
+					{selectedYear
+						? selectedYear + ' ' + ($language === 'ru' ? 'курс' : 'year')
+						: $language === 'ru'
+							? 'Выберите курс'
+							: 'Select year'}
+				</Select.Trigger>
+				<Select.Content class="z-10 max-h-[256px] overflow-y-auto">
+					<Select.Item value="">{$language === 'ru' ? 'Сброс' : 'Reset'}</Select.Item>
+					{#each yearOptions as option}
+						<Select.Item value={option}>{option} {$language === 'ru' ? 'курс' : 'year'}</Select.Item
 						>
-							{selectedGroup
-								? selectedGroup
-								: $language === 'ru'
-									? 'Выберите группу'
-									: 'Select a group'}
-							<ChevronsUpDown class="opacity-50" />
-						</Button>
-					{/snippet}
-				</Popover.Trigger>
-				<Popover.Content class="z-10 mt-[3px] w-[calc(100dvw-8px)] p-0 md:w-[256px]">
-					<Command.Root>
-						<Command.Input
-							placeholder={$language === 'ru' ? 'Искать группу' : 'Search for a group'}
-							class="h-9"
-						/>
-						<Command.List>
-							<Command.Empty>{$language === 'ru' ? 'Нет результатов' : 'No results'}</Command.Empty>
-							<Command.Group class="max-h-[256px] overflow-y-auto">
-								{#each Object.keys(groupOptions) as group}
-									<Command.Item
-										value={group}
-										onSelect={() => {
-											selectedGroup = group;
-											handleGroupChange();
-											closeAndFocusTrigger();
-										}}
-									>
-										<Check class={cn(selectedGroup !== group && 'text-transparent')} />
-										{group}
-									</Command.Item>
-								{/each}
-							</Command.Group>
-						</Command.List>
-					</Command.Root>
-				</Popover.Content>
-			</Popover.Root>
-			{#if selectedGroup}
-				<Button
-					variant="outline"
-					size="icon"
-					class="shrink-0 rounded-l-none border-l-0"
-					onclick={() => {
-						selectedGroup = '';
-						handleGroupChange();
-					}}
-				>
-					<X class="opacity-50"></X>
-				</Button>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+
+			{#if groupVisible}
+				<Popover.Root bind:open={groupSelectOpen}>
+					<Popover.Trigger bind:ref={triggerRef}>
+						{#snippet child({ props })}
+							<Button
+								variant="outline"
+								class="w-full justify-between px-3 py-2"
+								{...props}
+								role="combobox"
+								aria-expanded={groupSelectOpen}
+							>
+								{selectedGroup
+									? selectedGroup
+									: $language === 'ru'
+										? 'Выберите группу'
+										: 'Select a group'}
+								<ChevronsUpDown class="opacity-50" />
+							</Button>
+						{/snippet}
+					</Popover.Trigger>
+					<Popover.Content class="z-10 mt-[3px] w-[calc(100dvw-8px)] p-0 md:w-[256px]">
+						<Command.Root>
+							<Command.Input
+								placeholder={$language === 'ru' ? 'Искать группу' : 'Search for a group'}
+								class="h-9"
+							/>
+							<Command.List>
+								<Command.Empty
+									>{$language === 'ru' ? 'Нет результатов' : 'No results'}</Command.Empty
+								>
+								<Command.Group class="max-h-[256px] overflow-y-auto">
+									{#each Object.keys(groupOptions) as group}
+										<Command.Item
+											value={group}
+											onSelect={() => {
+												selectedGroup = group;
+												handleGroupChange();
+												closeAndFocusTrigger();
+											}}
+										>
+											<Check class={cn(selectedGroup !== group && 'text-transparent')} />
+											{group}
+										</Command.Item>
+									{/each}
+								</Command.Group>
+							</Command.List>
+						</Command.Root>
+					</Popover.Content>
+				</Popover.Root>
 			{/if}
 		</div>
 
@@ -471,7 +559,7 @@
 						<Table.Header
 							class="text-base {key === dateValueToString(today(getLocalTimeZone()))
 								? 'bg-green-100 dark:bg-green-800/50'
-								: day.length > 0
+								: studyDates[key]
 									? 'bg-blue-100 dark:bg-blue-800/50'
 									: 'mt-4 bg-red-100 p-4 dark:bg-red-800/50'}"
 						>
@@ -484,8 +572,8 @@
 							</Table.Row>
 						</Table.Header>
 						<Table.Body class="bg-background">
-							{#if day.length > 0}
-								{#if day[0].time !== '09:00 - 10:30'}
+							{#if studyDates[key]}
+								{#if day[0].time !== timeIntervals[0]}
 									<Table.Row>
 										<Table.Cell class="text-center font-semibold italic" colspan={2}>
 											{$language === 'ru' ? 'Пары начинаются с' : 'Lessons start at'}
@@ -532,21 +620,23 @@
 				</div>
 			{/each}
 		</div>
-	{/if}
-	{#if scheduleStatus !== 'visible'}
-		{#if lastQuery && scheduleStatus !== 'loading'}
+	{:else if scheduleStatus !== 'hidden'}
+		{#if lastQuery.year && lastQuery.group}
 			<Button
 				variant="outline"
 				class="md:1/2 my-1 w-full !justify-start py-5 md:w-[512px]"
 				onclick={async () => {
-					selectedGroup = lastQuery;
-					handleGroupChange();
+					selectedYear = lastQuery.year;
+					await handleYearChange();
+					selectedGroup = lastQuery.group;
+					handleGroupChange(false);
 				}}
 			>
 				<MousePointerClick class="ml-1 mr-2.5 !size-6 !text-cyan-700 dark:!text-cyan-400" />
 				<p>{$language === 'ru' ? 'Последний запрос: ' : 'Last query:'}</p>
 				<p class="font-semibold !text-cyan-700 dark:!text-cyan-400">
-					{lastQuery}
+					{lastQuery.year}
+					{$language === 'ru' ? 'курс' : 'year'}, {lastQuery.group}
 				</p>
 			</Button>
 		{/if}

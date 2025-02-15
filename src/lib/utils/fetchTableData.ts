@@ -2,6 +2,8 @@ const sheetId = '1FiMov0r4UUDKT6A56NWMImpoUakDC2YDevgaOpJQ7Qc';
 const apiKey = 'AIzaSyAxU9vV25C6ylby6cg9BO3SLz7_7xj50wo';
 
 const gidMap: { [key: string]: string } = {
+	student: '1374615807',
+	teacher: '462655913',
 	'1': '969201668',
 	'2': '1941201541',
 	'3': '1453481161',
@@ -18,12 +20,12 @@ export const colToLetter = (col: number) => {
 	return result;
 };
 
-export const fetchTableData = async (year: string) => {
+export const fetchTableData = async (sheet: string) => {
 	const result: { schedule: string[][] | null; scheduleError: string | null } = {
 		schedule: null,
 		scheduleError: null
 	};
-	const url = buildUrl(year);
+	const url = await buildUrl(sheet);
 	try {
 		const response = await fetch(url);
 		const data = await response.json();
@@ -44,9 +46,21 @@ export const fetchTableData = async (year: string) => {
 	}
 };
 
-const buildUrl = (sheetName: string) =>
-	`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName + ' курс')}?key=${apiKey}`;
+const buildUrl = async (sheet: string) => {
+	const sheetName = await getSheetName(sheet);
+	if (!sheetName) return '';
+	return `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
+};
 
-export const buildHref = (sheetName: string, row: number, col: number) => {
-	return `https://docs.google.com/spreadsheets/d/${sheetId}/edit?gid=${gidMap[sheetName]}&range=${colToLetter(col)}${row}`;
+const getSheetName = async (sheet: string) => {
+	const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`;
+	const response = await fetch(url);
+	const data = await response.json();
+
+	const sheetName = data.sheets.find((s: any) => s.properties.sheetId.toString() === gidMap[sheet]);
+	return sheetName ? sheetName.properties.title : null;
+};
+
+export const buildHref = (sheet: string, row: number, col: number) => {
+	return `https://docs.google.com/spreadsheets/d/${sheetId}/edit?gid=${gidMap[sheet]}&range=${colToLetter(col)}${row}`;
 };

@@ -10,9 +10,10 @@
 
 <Header
 	links={{
-		// '/home/': { name: 'Home', nameRu: 'Главная' },
-		'/': { name: 'Student', nameRu: 'Студенту' }
-		// '/teacher/': { name: 'Teacher', nameRu: 'Преподавателю' }
+		'/home/': { name: 'Home', nameRu: 'Главная' },
+		'/': { name: 'Student', nameRu: 'Студенту' },
+		'/teacher/': { name: 'Teacher', nameRu: 'Преподавателю' },
+		'/old/': { name: 'Old', nameRu: 'Старое' }
 	}}
 	title="НГОК"
 	titleLink="https://opencollege-nsk.ru/"

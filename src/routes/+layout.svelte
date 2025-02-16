@@ -4,8 +4,17 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import '$lib/../app.scss';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
+
+	onMount(() => {
+		let ifFirstVisit = localStorage.getItem('visited');
+		if (!ifFirstVisit) {
+			localStorage.setItem('visited', 'true');
+			window.location.href = '/home/';
+		}
+	});
 </script>
 
 <Header

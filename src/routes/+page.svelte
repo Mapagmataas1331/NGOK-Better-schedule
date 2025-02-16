@@ -367,7 +367,7 @@
 					{#snippet child({ props })}
 						<Button
 							variant="outline"
-							class={`w-full justify-between px-3 py-2${selectedGroup ? ' rounded-r-none border-r-0' : ''}`}
+							class={`w-full justify-between px-3 py-2${selectedGroup ? ' rounded-r-none' : ''}`}
 							{...props}
 							role="combobox"
 							aria-expanded={groupSelectOpen}

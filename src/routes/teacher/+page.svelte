@@ -342,7 +342,9 @@
 		class="fixed right-14 top-2.5 z-40 md:right-16 md:top-3.5"
 		onclick={() => {
 			if (selectedTeacher) {
-				navigator.clipboard.writeText(`${window.location.origin}?q=${encodeURI(selectedTeacher)}`);
+				navigator.clipboard.writeText(
+					`${window.location.origin}/teacher?q=${encodeURI(selectedTeacher)}`
+				);
 				toast.success(
 					$language === 'ru'
 						? `Ссылка для преподователя "${selectedTeacher}" скопирована в буфер обмена!`

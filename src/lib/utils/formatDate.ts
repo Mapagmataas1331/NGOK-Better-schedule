@@ -3,7 +3,7 @@ import { type DateValue } from '@internationalized/date';
 export const dateValueToString = (date: DateValue): string => {
 	const day = String(date.day).padStart(2, '0');
 	const month = String(date.month).padStart(2, '0');
-	const year = date.year;
+	const year = date.year.toString().slice(-2);
 
 	return `${day}.${month}.${year}`;
 };

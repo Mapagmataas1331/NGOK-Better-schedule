@@ -582,7 +582,7 @@
 			<HeartHandshake class="size-8 !text-green-700 dark:!text-green-400" />
 			<Alert.Title class="!pl-12">
 				{#if $language === 'ru'}
-					Лучшая <span class="!text-green-700 dark:!text-green-400">благодарность</span>
+					Лучшая <span class="text-green-700 dark:text-green-400">благодарность</span>
 					<a class="font-semibold hover:underline" href="https://ma.cyou/">Автору</a>
 				{:else}
 					Best Thanks to the <a class="font-semibold hover:underline" href="https://ma.cyou/"
@@ -593,22 +593,22 @@
 			<Alert.Description class="!pl-12">
 				{#if $language === 'ru'}
 					это подписка на <a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331">GitHub</a
 					>
 					и звездочка на
 					<a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331/ma">Репозиторий</a
 					>
 				{:else}
 					is a subscription on <a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331">GitHub</a
 					>
 					and a star on
 					<a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331/ma">Repository</a
 					>
 				{/if}
@@ -618,25 +618,25 @@
 			<Ban class="size-8 !text-red-700 dark:!text-red-400" />
 			<Alert.Title class="!pl-12">
 				{#if $language === 'ru'}
-					<span class="!text-red-700 dark:!text-red-400">Колледж</span> опять сломал
-					<span class="!text-red-700 dark:!text-red-400">расписание</span>
+					<span class="text-red-700 dark:text-red-400">Колледж</span> опять сломал
+					<span class="text-red-700 dark:text-red-400">расписание</span>
 				{:else}
-					<span class="!text-red-700 dark:!text-red-400">College</span> brocke
-					<span class="!text-red-700 dark:!text-red-400">schedule</span> again
+					<span class="text-red-700 dark:text-red-400">College</span> brocke
+					<span class="text-red-700 dark:text-red-400">schedule</span> again
 				{/if}
 			</Alert.Title>
 			<Alert.Description class="!pl-12">
 				{#if $language === 'ru'}
 					Подробнее здесь:
 					<a
-						class="font-semibold italic !text-cyan-700 hover:underline dark:!text-cyan-400"
+						class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
 						href="/home#news"
 						>Новости
 					</a>
 				{:else}
 					More info here:
 					<a
-						class="font-semibold italic !text-cyan-700 hover:underline dark:!text-cyan-400"
+						class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
 						href="/home#news"
 						>News
 					</a>

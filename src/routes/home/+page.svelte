@@ -22,7 +22,10 @@
 			</p>
 			<p class="mb-px p-px text-sm font-normal md:text-base">
 				-
-				<a href="/home/" class="font-semibold italic hover:underline">
+				<a
+					href="/home/"
+					class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
+				>
 					{$language === 'ru' ? 'Главная страница (эта страница)' : 'Home page (this page)'}
 				</a>
 				:
@@ -32,7 +35,7 @@
 			</p>
 			<p class="mb-px p-px text-sm font-normal md:text-base">
 				-
-				<a href="/" class="font-semibold italic hover:underline">
+				<a href="/" class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400">
 					{$language === 'ru'
 						? 'Страница для просмотра расписания студентам '
 						: 'Schedule viewer for students'}
@@ -44,7 +47,10 @@
 			</p>
 			<p class="mb-px p-px text-sm font-normal md:text-base">
 				-
-				<a href="/teacher/" class="font-semibold italic hover:underline">
+				<a
+					href="/teacher/"
+					class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
+				>
 					{$language === 'ru'
 						? 'Страница для просмотра расписания преподавателям'
 						: 'Schedule viewer for teachers'}
@@ -56,7 +62,10 @@
 			</p>
 			<p class="mb-px p-px text-sm font-normal md:text-base">
 				-
-				<a href="/old/" class="font-semibold italic hover:underline">
+				<a
+					href="/old/"
+					class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
+				>
 					{$language === 'ru'
 						? 'Старая версия страницы для просмотра расписания'
 						: 'Old schedule viewer'}

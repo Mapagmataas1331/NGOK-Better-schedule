@@ -125,7 +125,7 @@
 			</Button>
 		</div>
 
-		<h1 class="mb-1 ml-1 text-lg font-semibold md:mb-2 md:ml-2 md:text-2xl">
+		<h1 id="news" class="mb-1 ml-1 text-lg font-semibold md:mb-2 md:ml-2 md:text-2xl">
 			{$language === 'ru' ? '# Новости и События' : '# News and Events'}
 		</h1>
 

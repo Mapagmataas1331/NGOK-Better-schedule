@@ -471,8 +471,8 @@
 
 	{#if scheduleStatus === 'error'}
 		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-			<Ban class="size-8" />
-			<Alert.Title class="!pl-12"
+			<Ban class="size-8 !text-red-700 dark:!text-red-400" />
+			<Alert.Title class="!pl-12 text-red-700 dark:text-red-400"
 				>{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}</Alert.Title
 			>
 			<Alert.Description class="!pl-12">{scheduleError}</Alert.Description>
@@ -611,6 +611,35 @@
 						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
 						href="https://github.com/Mapagmataas1331/ma">Repository</a
 					>
+				{/if}
+			</Alert.Description>
+		</Alert.Root>
+		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
+			<Ban class="size-8 !text-red-700 dark:!text-red-400" />
+			<Alert.Title class="!pl-12">
+				{#if $language === 'ru'}
+					<span class="!text-red-700 dark:!text-red-400">Колледж</span> опять сломал
+					<span class="!text-red-700 dark:!text-red-400">расписание</span>
+				{:else}
+					<span class="!text-red-700 dark:!text-red-400">College</span> brocke
+					<span class="!text-red-700 dark:!text-red-400">schedule</span> again
+				{/if}
+			</Alert.Title>
+			<Alert.Description class="!pl-12">
+				{#if $language === 'ru'}
+					Подробнее здесь:
+					<a
+						class="font-semibold italic !text-cyan-700 hover:underline dark:!text-cyan-400"
+						href="/home#news"
+						>Новости
+					</a>
+				{:else}
+					More info here:
+					<a
+						class="font-semibold italic !text-cyan-700 hover:underline dark:!text-cyan-400"
+						href="/home#news"
+						>News
+					</a>
 				{/if}
 			</Alert.Description>
 		</Alert.Root>

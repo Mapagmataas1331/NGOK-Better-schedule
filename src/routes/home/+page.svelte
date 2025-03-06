@@ -129,8 +129,38 @@
 			{$language === 'ru' ? '# Новости и События' : '# News and Events'}
 		</h1>
 
+		<div class="mb-2 border-2 md:mb-4">
+			<h1 class="my-1 ml-2 text-lg font-semibold text-red-700 dark:text-red-400 md:my-2 md:text-xl">
+				{$language === 'ru' ? 'Поломка 07.03.25' : 'Issue 07.03.25'}
+			</h1>
+			<Separator />
+			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
+				<p class="ml-1 p-px text-sm font-medium md:text-base">
+					{$language === 'ru'
+						? '• Кто-то в коллеже опять решил изменить рабочее расписание...'
+						: '• Someone in the collage once again decided to change the working schedule...'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'У меня пока что нету свободного времени на обновление.'
+						: 'For now, I have no free time to update.'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Если вы хотите мне помочь / ускорить работу над обновлением - помогите разузнать что изменилось в расписании и что вообще с ним планируется, или если у вас уже есть информация - сообщите мне в Telegram'
+						: 'If you want to help me / speed up the work on the update - help me understand what has changed in the schedule and what is planned with it, or if you already have information - message me in Telegram'}
+					<a
+						class="italic !text-cyan-700 hover:underline dark:!text-cyan-400"
+						href="https://t.me/mapagmataas">@mapagmataas</a
+					>
+				</p>
+			</div>
+		</div>
+
 		<div class="border-2">
-			<h1 class="my-1 ml-2 text-lg font-semibold md:my-2 md:text-xl">
+			<h1
+				class="my-1 ml-2 text-lg font-semibold text-green-700 dark:text-green-400 md:my-2 md:text-xl"
+			>
 				{$language === 'ru' ? 'Обновление 16.02.25' : 'Update 16.02.25'}
 			</h1>
 			<Separator />

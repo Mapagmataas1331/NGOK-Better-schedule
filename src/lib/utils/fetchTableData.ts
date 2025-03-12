@@ -3,11 +3,7 @@ const apiKey = 'AIzaSyAxU9vV25C6ylby6cg9BO3SLz7_7xj50wo';
 
 const gidMap: { [key: string]: string } = {
 	student: '1374615807',
-	teacher: '462655913',
-	'1': '969201668',
-	'2': '1941201541',
-	'3': '1453481161',
-	'4': '1406536602'
+	teacher: '1870669808'
 };
 
 export const colToLetter = (col: number) => {

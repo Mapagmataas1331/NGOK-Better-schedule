@@ -15,10 +15,8 @@
 		</h1>
 		<Separator />
 		<div class="flex w-full flex-col p-2 md:p-4">
-			<p class="ml-1 p-px text-base font-medium md:text-lg">
-				{$language === 'ru'
-					? '• С последним обновлением сайта на нём появились:'
-					: '• With the last update, there are now:'}
+			<p class="ml-1 p-px text-lg font-semibold md:text-lg">
+				{$language === 'ru' ? '• Карта сайта:' : '• With the last update, there are now:'}
 			</p>
 			<p class="mb-px p-px text-sm font-normal md:text-base">
 				-
@@ -60,21 +58,6 @@
 					? 'А тут уже преподаватель может просматривать своё расписание.'
 					: 'And here, the teacher can view their schedule.'}
 			</p>
-			<p class="mb-px p-px text-sm font-normal md:text-base">
-				-
-				<a
-					href="/old/"
-					class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
-				>
-					{$language === 'ru'
-						? 'Старая версия страницы для просмотра расписания'
-						: 'Old schedule viewer'}
-				</a>
-				:
-				{$language === 'ru'
-					? 'Только для просмотра устаревшего расписания'
-					: 'Only for viewing the outdated schedule'}
-			</p>
 		</div>
 
 		<Accordion.Root type="single">
@@ -104,8 +87,8 @@
 		<div class="flex w-full flex-col p-2 md:p-4">
 			<p class="ml-1 p-px text-sm font-medium md:text-base">
 				{$language === 'ru'
-					? '• Я делаю это все один, вас много, а подписок на GitHub мало... Исправляйтесь...'
-					: '• I’m handling all of this solo, yet you still haven’t hit that GitHub subscribe button...'}
+					? '• Я делаю это все один, вас много, а подписок на GitHub мало'
+					: '• I’m handling all of this solo, yet you still haven’t hit that GitHub subscribe button'}
 			</p>
 			<p class="p-px text-sm font-normal md:text-base">
 				{$language === 'ru'
@@ -116,12 +99,12 @@
 		<div class="flex w-full flex-col items-center justify-center p-2 md:p-4">
 			<p class="mb-2 text-center text-sm font-medium italic md:text-lg">
 				{$language === 'ru'
-					? 'Тот самый единственный чел, который реально подписался (Легенда):'
-					: 'The one person who actually subscribed (Legend):'}
+					? 'Всем кто подписался, от меня миска риса и большое спасибо!'
+					: 'A bowl of rice and best wishes to everyone who subscribed!'}
 			</p>
 			<img
-				src="https://sun9-76.userapi.com/impf/c850224/v850224721/f9dea/2USiLvmGtqI.jpg?size=1016x810&quality=96&sign=10f15ec20bce1feefca007cf64e69a33&type=album"
-				alt="That one subscriber"
+				src="https://avatars.dzeninfra.ru/get-zen_doc/9846546/pub_64abce0f285e1f488d2ebf92_64abf2e26b91d965cf1202d6/scale_1200"
+				alt="miska risa"
 				class="w-full max-w-[512px]"
 			/>
 			<Button
@@ -139,12 +122,46 @@
 		</h1>
 
 		<div class="mb-2 border-2 md:mb-4">
+			<h1
+				class="my-1 ml-2 text-lg font-semibold text-green-700 dark:text-green-400 md:my-2 md:text-xl"
+			>
+				{$language === 'ru' ? 'Обновление 12.03.25' : 'Update 12.03.25'}
+			</h1>
+			<Separator />
+			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
+				<p class="ml-1 p-px text-base font-medium md:text-lg">
+					{$language === 'ru'
+						? '• В общем, вроде как всё, что заметил, починил и всё работает.'
+						: '• Overall, I fixed everything I noticed and now everything is working.'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Опять же, если что-то заметите — пишите. Кроме исправлений, удалил старую версию расписания, поскольку нужные для неё таблицы удалили.'
+						: 'Again, if you notice anything, please let me know. Additionally, I removed the old schedule version since the necessary tables for it were deleted.'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Всем, кто написал добрые слова, подписался на GitHub или просто изредка проверял, заработал ли сайт — огромное спасибо!'
+						: 'A huge thank you to everyone who wrote kind words, followed on GitHub, or simply checked occasionally if the site was running!'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Без вас этого обновления, как и сайта, никогда бы и не было! Поскольку колледжу, похоже, абсолютно безразлична жизнь этого ресурса('
+						: 'Without you, neither this update nor the site would have been possible! It seems the college is completely indifferent to the life of this resource ('}
+				</p>
+			</div>
+			<div class="flex w-full flex-col items-center justify-center pb-4 md:pb-6">
+				<img src="/12-03-25_stats.png" alt="12.03.25 stats" class="w-full max-w-[640px]" />
+			</div>
+		</div>
+
+		<div class="mb-2 border-2 md:mb-4">
 			<h1 class="my-1 ml-2 text-lg font-semibold text-red-700 dark:text-red-400 md:my-2 md:text-xl">
 				{$language === 'ru' ? 'Поломка 07.03.25' : 'Issue 07.03.25'}
 			</h1>
 			<Separator />
 			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
-				<p class="ml-1 p-px text-sm font-medium md:text-base">
+				<p class="ml-1 p-px text-base font-medium md:text-lg">
 					{$language === 'ru'
 						? '• Кто-то в коллеже опять решил изменить рабочее расписание...'
 						: '• Someone in the collage once again decided to change the working schedule...'}
@@ -174,7 +191,7 @@
 			</h1>
 			<Separator />
 			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
-				<p class="ml-1 p-px text-sm font-medium md:text-base">
+				<p class="ml-1 p-px text-base font-medium md:text-lg">
 					{$language === 'ru'
 						? '• Я постарался и за день обновил сайт под новую версию расписания.'
 						: '• I worked diligently to update the site with the new schedule within a day.'}

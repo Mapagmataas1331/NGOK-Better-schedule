@@ -26,15 +26,17 @@
 	import { getLocalTimeZone, today } from '@internationalized/date';
 	import { type DateRange } from 'bits-ui';
 
-	// params
-	// 	teachNum: { x: 0, firstY: 4, step: 2 },
-	// 	teacher: { x: 2, firstY: 4, step: 2 },
-	// 	date: { y: 0, firstX: 2, step: 2 * 6 },
-	// 	lesNum: { y: 1, firstX: 2, step: 2 },
-	// 	time: { y: 2, firstX: 2, step: 2 },
-	// 	group: { firstY: 4, firstX: 2, step: 2 },
-	// 	type: { firstY: 5, firstX: 2, step: 2 },
-	// 	auditorium: { firstY: 4, firstX: 3, step: 2 }
+	const params = {
+		teachNum: { x: 0, firstY: 5, step: 2 }, // x: 0, firstY: 4, step: 2
+		teacher: { x: 1, firstY: 5, step: 2 }, // x: 2, firstY: 4, step: 2
+		hours: { x: 2, firstY: 5, step: 2 },
+		date: { y: 1, firstX: 3, step: 2 * 6 }, // y: 0, firstX: 2, step: 2 * 6
+		lesNum: { y: 2, firstX: 3, step: 2 }, // y: 1, firstX: 2, step: 2
+		time: { y: 3, firstX: 3, step: 2 }, // y: 2, firstX: 2, step: 2
+		group: { firstY: 5, firstX: 3, step: 2 }, // firstY: 4, firstX: 2, step: 2
+		type: { firstY: 6, firstX: 3, step: 2 }, // firstY: 5, firstX: 2, step: 2
+		auditorium: { firstY: 5, firstX: 4, step: 2 } // firstY: 4, firstX: 3, step: 2
+	};
 
 	type Lesson = {
 		time: string;
@@ -168,9 +170,15 @@
 			}
 
 			let lessons: Lesson[] = [];
+			console.log(dates, date);
 			if (dates[date]) {
-				for (let i = dates[date]; i < dates[getNextDate(date)] || i < dates[date] + 6 * 2; i += 2) {
-					const time = schedule[2][i];
+				for (
+					let i = dates[date];
+					i < dates[getNextDate(date)] || i < dates[date] + params.date.step;
+					i += params.lesNum.step
+				) {
+					console.log(schedule[params.time.y], schedule[teacherOptions[selectedTeacher]]);
+					const time = schedule[params.time.y][i];
 					const group = schedule[teacherOptions[selectedTeacher]][i];
 					const type = schedule[teacherOptions[selectedTeacher] + 1][i];
 					const auditorium = schedule[teacherOptions[selectedTeacher]][i + 1];
@@ -211,7 +219,7 @@
 		}
 		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
 			const cell = row[1];
-			if (index > 2 && cell && !acc[cell]) acc[cell] = index;
+			if (index >= params.teacher.firstY && cell && !acc[cell]) acc[cell] = index;
 			return acc;
 		}, {});
 	};
@@ -252,17 +260,29 @@
 			scheduleStatus = 'error';
 			return {};
 		}
-		return schedule[0].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
-			const dateCell = cell.split(' ')[1];
-			if (
-				index > 1 &&
-				dateCell &&
-				dateCell !== 'undefined' &&
-				/\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)
-			)
-				acc[`${dateCell.slice(0, -4)}${dateCell.split('.')[2].slice(-2)}`] = index;
-			return acc;
-		}, {});
+
+		return schedule[params.date.y].reduce(
+			(acc: { [key: string]: number }, cell: string, index: number) => {
+				const dateCell = cell.split(' ')[1];
+				console.log(
+					cell,
+					dateCell,
+					index > 1 &&
+						dateCell &&
+						dateCell !== 'undefined' &&
+						/\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)
+				);
+				if (
+					index > 1 &&
+					dateCell &&
+					dateCell !== 'undefined' &&
+					/\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)
+				)
+					acc[`${dateCell.slice(0, -4)}${dateCell.split('.')[2].slice(-2)}`] = index;
+				return acc;
+			},
+			{}
+		);
 	};
 
 	onMount(async () => {

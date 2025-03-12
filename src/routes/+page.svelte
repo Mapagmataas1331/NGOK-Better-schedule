@@ -26,15 +26,16 @@
 	import { getLocalTimeZone, today } from '@internationalized/date';
 	import { type DateRange } from 'bits-ui';
 
-	// params
-	// 	date: { x: 0, firstY: 2, step: 3 * 6 },
-	// 	lesNum: { x: 1, firstY: 2, step: 3 },
-	// 	time: { x: 2, firstY: 2, step: 3 },
-	// 	group: { y: 0, firstX: 3, step: 2 },
-	// 	discipline: { firstX: 3, firstY: 2, step: 3 },
-	// 	type: { firstX: 3, firstY: 3, step: 3 },
-	// 	teacher: { firstX: 3, firstY: 4, step: 3 },
-	// 	auditorium: { firstX: 4, firstY: 2, step: 3 }
+	const params = {
+		date: { x: 0, firstY: 1, step: 3 * 6 }, // x: 0, firstY: 2, step: 3 * 6
+		lesNum: { x: 1, firstY: 1, step: 3 }, // x: 1, firstY: 2, step: 3
+		time: { x: 2, firstY: 1, step: 3 }, // x: 2, firstY: 2, step: 3
+		group: { y: 0, firstX: 4, step: 2 }, // y: 0, firstX: 3, step: 2
+		discipline: { firstX: 4, firstY: 1, step: 3 }, // firstX: 3, firstY: 2, step: 3
+		type: { firstX: 4, firstY: 2, step: 3 }, // firstX: 3, firstY: 3, step: 3
+		teacher: { firstX: 4, firstY: 3, step: 3 }, // firstX: 3, firstY: 4, step: 3
+		auditorium: { firstX: 5, firstY: 1, step: 3 } // firstX: 4, firstY: 2, step: 3
+	};
 
 	type Lesson = {
 		time: string;
@@ -170,8 +171,12 @@
 
 			let lessons: Lesson[] = [];
 			if (dates[date]) {
-				for (let i = dates[date]; i < dates[getNextDate(date)] || i < dates[date] + 6 * 3; i += 3) {
-					const time = schedule[i][2];
+				for (
+					let i = dates[date];
+					i < dates[getNextDate(date)] || i < dates[date] + params.date.step;
+					i += params.lesNum.step
+				) {
+					const time = schedule[i][params.time.x];
 					const discipline = schedule[i][groupOptions[selectedGroup]];
 					const type = schedule[i + 1][groupOptions[selectedGroup]];
 					const teacher = schedule[i + 2][groupOptions[selectedGroup]];
@@ -213,7 +218,7 @@
 			return {};
 		}
 		return schedule[0].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
-			if (index > 2 && cell && !acc[cell]) acc[cell] = index;
+			if (index >= params.group.firstX && cell && !acc[cell]) acc[cell] = index;
 			return acc;
 		}, {});
 	};
@@ -255,9 +260,10 @@
 			return {};
 		}
 		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
-			const dateCell = row[0].split(' ')[1];
+			if (!row[params.date.x]) return acc;
+			const dateCell = row[params.date.x].split(' ')[1];
 			if (
-				index > 0 &&
+				index >= params.date.firstY &&
 				dateCell &&
 				dateCell !== 'undefined' &&
 				/\b(\d{2}\.\d{2}\.\d{2})\b/.test(dateCell)
@@ -614,7 +620,7 @@
 				{/if}
 			</Alert.Description>
 		</Alert.Root>
-		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
+		<!-- <Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
 			<Ban class="size-8 !text-red-700 dark:!text-red-400" />
 			<Alert.Title class="!pl-12">
 				{#if $language === 'ru'}
@@ -642,6 +648,6 @@
 					</a>
 				{/if}
 			</Alert.Description>
-		</Alert.Root>
+		</Alert.Root> -->
 	{/if}
 </div>

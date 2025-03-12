@@ -10,14 +10,16 @@
 	import { toast } from 'svelte-sonner';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import Ban from 'lucide-svelte/icons/ban';
-	import X from 'lucide-svelte/icons/x';
-	import HeartHandshake from 'lucide-svelte/icons/heart-handshake';
-	import MousePointerClick from 'lucide-svelte/icons/mouse-pointer-click';
-	import Check from 'lucide-svelte/icons/check';
-	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
-	import Calendar from 'lucide-svelte/icons/calendar';
-	import Share from 'lucide-svelte/icons/share';
+	import {
+		Ban,
+		X,
+		HeartHandshake,
+		MousePointerClick,
+		Check,
+		ChevronsUpDown,
+		Calendar,
+		Share
+	} from '@lucide/svelte';
 	import { cn } from '$lib/utils.js';
 	import { language } from '$lib/stores/language';
 	import { viewport, breakpoints } from '$lib/stores/viewport';

@@ -2,7 +2,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
-	import GitHub from 'lucide-svelte/icons/github';
+	import { Github } from '@lucide/svelte';
 	import { language } from '$lib/stores/language';
 </script>
 
@@ -112,7 +112,7 @@
 				href="https://github.com/Mapagmataas1331"
 				class="!my-4 w-fit font-semibold shadow-md md:!my-8"
 			>
-				<GitHub class="mr-1 !size-5" />
+				<Github class="mr-1 !size-5" />
 				{$language === 'ru' ? 'Подписаться' : 'Subscribe'}
 			</Button>
 		</div>

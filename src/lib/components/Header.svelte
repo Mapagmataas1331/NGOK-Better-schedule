@@ -1,12 +1,10 @@
 <script lang="ts">
-	import Menu from 'lucide-svelte/icons/menu';
-	import Cog from 'lucide-svelte/icons/cog';
-	import CircleUser from 'lucide-svelte/icons/circle-user';
-
 	import { buttonVariants } from './ui/button/index.js';
 	import * as DropdownMenu from './ui/dropdown-menu/index.js';
 	import * as Sheet from './ui/sheet/index.js';
 	import { Separator } from './ui/separator/index.js';
+
+	import { Menu, Cog, CircleUser } from '@lucide/svelte';
 
 	import defaultSettings, { type Setting } from './Settings.svelte';
 	import defaultLogo from './Logo.svelte';

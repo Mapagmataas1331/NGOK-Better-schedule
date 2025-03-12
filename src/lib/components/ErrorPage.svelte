@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { language } from '$lib/stores/language';
-
 	import Logo from '$lib/components/Logo.svelte';
-	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
-	import House from 'lucide-svelte/icons/house';
+	import { ChevronLeft, House } from '@lucide/svelte';
 
 	import { Button } from './ui/button/index.js';
 	import * as Tooltip from './ui/tooltip/index.js';

@@ -18,7 +18,8 @@
 		Check,
 		ChevronsUpDown,
 		Calendar,
-		Share
+		Share,
+		Heart
 	} from '@lucide/svelte';
 	import { cn } from '$lib/utils.js';
 	import { language } from '$lib/stores/language';
@@ -172,14 +173,12 @@
 			}
 
 			let lessons: Lesson[] = [];
-			console.log(dates, date);
 			if (dates[date]) {
 				for (
 					let i = dates[date];
 					i < dates[getNextDate(date)] || i < dates[date] + params.date.step;
 					i += params.lesNum.step
 				) {
-					console.log(schedule[params.time.y], schedule[teacherOptions[selectedTeacher]]);
 					const time = schedule[params.time.y][i];
 					const group = schedule[teacherOptions[selectedTeacher]][i];
 					const type = schedule[teacherOptions[selectedTeacher] + 1][i];
@@ -266,14 +265,6 @@
 		return schedule[params.date.y].reduce(
 			(acc: { [key: string]: number }, cell: string, index: number) => {
 				const dateCell = cell.split(' ')[1];
-				console.log(
-					cell,
-					dateCell,
-					index > 1 &&
-						dateCell &&
-						dateCell !== 'undefined' &&
-						/\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)
-				);
 				if (
 					index > 1 &&
 					dateCell &&
@@ -492,8 +483,8 @@
 
 	{#if scheduleStatus === 'error'}
 		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-			<Ban class="size-8" />
-			<Alert.Title class="!pl-12"
+			<Ban class="size-8 !text-red-700 dark:!text-red-400" />
+			<Alert.Title class="!pl-12 text-red-700 dark:text-red-400"
 				>{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}</Alert.Title
 			>
 			<Alert.Description class="!pl-12">{scheduleError}</Alert.Description>
@@ -501,6 +492,17 @@
 	{:else if scheduleStatus === 'loading'}
 		<Skeleton class="md:1/2 my-1 h-8 w-full md:w-[512px]" />
 	{:else if scheduleStatus === 'visible' && buildedSchedule}
+		{#if selectedTeacher.startsWith('Макаров Максим Сергеевич') || selectedTeacher.startsWith('Ковалёв Михаил Игоревич')}
+			<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
+				<Heart class="size-8  !text-red-700 dark:!text-red-400" />
+				<Alert.Title class="!pl-12">
+					{selectedTeacher.split(' ')[1] + ' ' + selectedTeacher.split(' ')[2]},
+				</Alert.Title>
+				<Alert.Description class="!pl-12 text-red-700 dark:text-red-400">
+					Огромные респект и уважение!
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
 		<div
 			class="mx-auto my-1.5 grid grid-cols-1 justify-items-center gap-x-2 gap-y-3 md:p-2{Object.keys(
 				buildedSchedule
@@ -594,7 +596,7 @@
 			>
 				<MousePointerClick class="ml-1 mr-2.5 !size-6 !text-cyan-700 dark:!text-cyan-400" />
 				<p>{$language === 'ru' ? 'Последний запрос: ' : 'Last query:'}</p>
-				<p class="font-semibold !text-cyan-700 dark:!text-cyan-400">
+				<p class="font-semibold text-cyan-700 dark:text-cyan-400">
 					{lastQuery}
 				</p>
 			</Button>
@@ -603,7 +605,7 @@
 			<HeartHandshake class="size-8 !text-green-700 dark:!text-green-400" />
 			<Alert.Title class="!pl-12">
 				{#if $language === 'ru'}
-					Лучшая <span class="!text-green-700 dark:!text-green-400">благодарность</span>
+					Лучшая <span class="text-green-700 dark:text-green-400">благодарность</span>
 					<a class="font-semibold hover:underline" href="https://ma.cyou/">Автору</a>
 				{:else}
 					Best Thanks to the <a class="font-semibold hover:underline" href="https://ma.cyou/"
@@ -614,22 +616,22 @@
 			<Alert.Description class="!pl-12">
 				{#if $language === 'ru'}
 					это подписка на <a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331">GitHub</a
 					>
 					и звездочка на
 					<a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331/ma">Репозиторий</a
 					>
 				{:else}
 					is a subscription on <a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331">GitHub</a
 					>
 					and a star on
 					<a
-						class="font-semibold italic !text-green-700 hover:underline dark:!text-green-400"
+						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
 						href="https://github.com/Mapagmataas1331/ma">Repository</a
 					>
 				{/if}

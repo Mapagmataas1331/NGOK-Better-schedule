@@ -9,45 +9,42 @@
 	import defaultSettings, { type Setting } from './Settings.svelte';
 	import defaultLogo from './Logo.svelte';
 
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { language } from '../stores/language';
 
-	let clazz = '';
-	export { clazz as class };
-	export let links: { [key: string]: { name: string; nameRu: string } } = {
-		'/': { name: 'Home', nameRu: 'Главная' }
-	};
+	let {
+		class: className = '',
+		links = { '/': { name: 'Home', nameRu: 'Главная' } },
+		title = 'macyou',
+		titleLink = 'https://ma.cyou',
+		Logo = defaultLogo,
+		additionalSettings = null,
+		Settings = defaultSettings,
+		AdditionalSettings = null,
+		profile = true
+	} = $props();
 
-	export let title: string = 'macyou';
-	export let titleLink: string = 'https://ma.cyou';
-	export let Logo = defaultLogo;
-	export let additionalSettings: { [link: string]: Setting } | null = null;
-	export let Settings: typeof defaultSettings | null = defaultSettings;
-	export let AdditionalSettings: typeof defaultSettings | null = null;
-	export let profile: boolean = true;
-
-	let activeLink: string = '';
-	$: activeLink = $page.url.pathname;
+	let activeLink = $derived(page.url.pathname);
 </script>
 
-<div class="fixed inset-0 -top-14 z-20 h-14 w-screen bg-background"></div>
+<div class="bg-background fixed inset-0 -top-14 z-20 h-14 w-screen"></div>
 <header
-	class="{clazz !== ''
-		? clazz + ' '
-		: ''}z-40 sticky inset-0 flex h-14 w-screen items-center gap-2 border-b bg-background px-2 md:h-16 md:gap-4 md:px-4"
+	class="{className !== ''
+		? className + ' '
+		: ''}z-40 bg-background sticky inset-0 flex h-14 w-screen items-center gap-2 border-b px-2 md:h-16 md:gap-4 md:px-4"
 >
 	<nav class="hidden gap-6 text-base font-medium md:flex md:items-center md:gap-4 lg:gap-6">
 		<a href={titleLink} class="flex items-center gap-2 text-lg font-semibold">
-			<Logo class="size-8 fill-current text-foreground" />
+			<Logo class="text-foreground size-8 fill-current" />
 			<p class="pb-0.5">{title}</p>
 		</a>
-		<Separator orientation="vertical" class="h-6 bg-muted-foreground bg-opacity-50" />
+		<Separator orientation="vertical" class="bg-muted-foreground bg-opacity-50 h-6" />
 		{#each Object.entries(links) as [key, link]}
 			<a
 				href={key}
 				class="{activeLink === key
 					? 'text-foreground'
-					: 'text-muted-foreground'} transition-colors hover:text-foreground"
+					: 'text-muted-foreground'} hover:text-foreground transition-colors"
 			>
 				{$language === 'ru' ? link.nameRu : link.name}
 			</a>
@@ -63,17 +60,18 @@
 			</span>
 		</Sheet.Trigger>
 		<div class="flex items-center gap-2 font-semibold md:hidden">
-			<Logo class="size-8 fill-current text-foreground" />
+			<Logo class="text-foreground size-8 fill-current" />
 			<p>
 				{$language === 'ru'
 					? links[activeLink]?.nameRu || activeLink.split('/')[activeLink.split('/').length - 2]
 					: links[activeLink]?.name || activeLink.split('/')[activeLink.split('/').length - 2]}
 			</p>
 		</div>
-		<Sheet.Content side="left">
+		<Sheet.Content side="left" class="p-6">
+			<Sheet.Close id="closeSheet" class="hidden" />
 			<nav class="grid gap-6 text-lg font-medium">
 				<a href={titleLink} class="flex items-center gap-2 text-lg font-semibold md:text-base">
-					<Logo class="size-8 fill-current text-foreground" />
+					<Logo class="text-foreground size-8 fill-current" />
 					<p>{title}</p>
 				</a>
 				{#each Object.entries(links) as [key, link]}
@@ -81,13 +79,8 @@
 						href={key}
 						class="{activeLink === key
 							? 'text-foreground'
-							: 'text-muted-foreground'} transition-colors hover:text-foreground"
-						on:click={key === '/'
-							? (e) => {
-									e.preventDefault();
-									window.location.href = '/';
-								}
-							: undefined}
+							: 'text-muted-foreground'} hover:text-foreground transition-colors"
+						onclick={() => document.getElementById('closeSheet')?.click()}
 					>
 						{$language === 'ru' ? link.nameRu : link.name}
 					</a>
@@ -116,7 +109,8 @@
 							<Settings />
 						{/if}
 						{#if AdditionalSettings !== null}
-							<svelte:component this={AdditionalSettings} />
+							{@const Component = AdditionalSettings}
+							<Component />
 						{/if}
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>

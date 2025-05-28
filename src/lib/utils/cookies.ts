@@ -1,3 +1,13 @@
+export const areCookiesEnabled = (ifDomain: boolean) => {
+	let cookiesEnabled = false;
+	document.cookie = 'testCookie=1; SameSite=Lax; path=/';
+	setCookie('testCookie', 'true', 365, ifDomain ? 'ngok.ma.cyou' : '');
+	cookiesEnabled = getCookie('testCookie') == 'true' ? true : false;
+	removeCookie('testCookie');
+
+	return cookiesEnabled;
+};
+
 export const setCookie = (
 	name: string,
 	value: string | number,

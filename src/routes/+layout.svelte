@@ -3,17 +3,18 @@
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import Footer from '$lib/components/Footer.svelte';
 	import Logo from '$lib/components/Logo.svelte';
-	import { getCookie, setCookie } from '$lib/utils/cookies';
-	import '$lib/../app.scss';
+	import { areCookiesEnabled, getCookie, setCookie } from '$lib/utils/cookies';
+	import '$lib/../app.css';
 	import { onMount } from 'svelte';
 
 	let { children } = $props();
 
 	onMount(() => {
 		let ifFirstVisit = getCookie('visited');
-		if (!ifFirstVisit) {
+		if (!ifFirstVisit && areCookiesEnabled(true)) {
 			setCookie('visited', 'true', 365, 'ngok.ma.cyou');
 			window.location.href = '/home/';
+			console.log('first visit');
 		}
 	});
 </script>

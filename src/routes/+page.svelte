@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import * as Command from '$lib/components/ui/command/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -77,6 +77,15 @@
 
 	const onLoad = async () => {
 		scheduleStatus = 'loading';
+
+		if (localStorage.getItem('sdata')) {
+			schedule = JSON.parse(localStorage.getItem('sdata')!);
+			groupOptions = extractGroups();
+			dates = extractDates();
+
+			scheduleStatus = 'hidden';
+		}
+
 		const data = await fetchTableData('student');
 		if (data.scheduleError || !data.schedule) {
 			if (scheduleError || !schedule) {
@@ -88,11 +97,14 @@
 		}
 		schedule = data.schedule;
 		scheduleError = data.scheduleError;
-		await tick();
 
-		scheduleStatus = 'hidden';
 		groupOptions = extractGroups();
 		dates = extractDates();
+
+		scheduleStatus = 'hidden';
+
+		if (selectedGroup) buildSchedule();
+		localStorage.setItem('sdata', JSON.stringify(schedule));
 	};
 
 	const handleGroupChange = async (saveLastQuery = true) => {
@@ -135,6 +147,8 @@
 				return;
 			}
 			buildSchedule();
+
+			localStorage.setItem('sdata', JSON.stringify(schedule));
 		}, 300000);
 	};
 
@@ -285,7 +299,7 @@
 			localStorage.setItem('slq', slq);
 		});
 
-		const urlQ = $page.url.searchParams.get('q') || $page.url.searchParams.get('group') || '';
+		const urlQ = page.url.searchParams.get('q') || page.url.searchParams.get('group') || '';
 
 		if (urlQ) {
 			const qGroup = decodeURI(urlQ);
@@ -335,7 +349,7 @@
 <div
 	class="{selectedGroup
 		? 'justify-start'
-		: 'justify-center'} mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center bg-gradient-to-br from-white to-sky-200 px-1 dark:from-sky-800 dark:to-black md:min-h-[calc(100dvh_-_4rem)]"
+		: 'justify-center'} mx-auto flex min-h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center bg-gradient-to-br from-white to-sky-200 px-1 md:min-h-[calc(100dvh_-_4rem)] dark:from-sky-800 dark:to-black"
 >
 	{#if scheduleStatus !== 'visible'}
 		<div class="absolute top-[20dvh]">
@@ -352,7 +366,7 @@
 	<Button
 		variant="outline"
 		size="icon"
-		class="fixed right-14 top-2.5 z-40 md:right-16 md:top-3.5"
+		class="fixed top-2.5 right-14 z-40 md:top-3.5 md:right-16"
 		onclick={() => {
 			if (selectedGroup) {
 				navigator.clipboard.writeText(`${window.location.origin}?q=${encodeURI(selectedGroup)}`);
@@ -369,75 +383,79 @@
 		<Share class="!size-5" />
 	</Button>
 	<div class="md:1/2 m-1 mt-3 flex w-full flex-col gap-y-2 md:w-[512px]">
-		<div class="flex flex-row gap-0">
-			<Popover.Root bind:open={groupSelectOpen}>
-				<Popover.Trigger bind:ref={triggerRef}>
-					{#snippet child({ props })}
-						<Button
-							variant="outline"
-							class={`w-full justify-between px-3 py-2${selectedGroup ? ' rounded-r-none' : ''}`}
-							{...props}
-							role="combobox"
-							aria-expanded={groupSelectOpen}
-						>
-							{selectedGroup
-								? selectedGroup
-								: $language === 'ru'
-									? 'Выберите группу'
-									: 'Select a group'}
-							<ChevronsUpDown class="opacity-50" />
-						</Button>
-					{/snippet}
-				</Popover.Trigger>
-				<Popover.Content class="z-10 mt-[3px] w-[calc(100dvw-8px)] p-0 md:w-[320px]">
-					<Command.Root>
-						<Command.Input
-							placeholder={$language === 'ru' ? 'Искать группу' : 'Search for a group'}
-							class="h-9"
-							onfocusin={() => {
-								if ($viewport.vw < breakpoints.md) {
-									window.scrollTo({
-										top: window.scrollY + triggerRef.getBoundingClientRect().top - 8,
-										behavior: 'smooth'
-									});
-								}
-							}}
-							onfocusout={() => {
-								if ($viewport.vw < breakpoints.md) {
-									groupSelectOpen = false;
-									window.scrollTo({
-										top: 0,
-										behavior: 'smooth'
-									});
-								}
-							}}
-						/>
-						<Command.List>
-							<Command.Empty>{$language === 'ru' ? 'Нет результатов' : 'No results'}</Command.Empty>
-							<Command.Group class="max-h-[256px] overflow-y-auto">
-								{#each Object.keys(groupOptions) as group}
-									<Command.Item
-										value={group}
-										onSelect={() => {
-											selectedGroup = group;
-											handleGroupChange();
-											closeAndFocusTrigger();
-										}}
-									>
-										<Check class={cn(selectedGroup !== group && 'text-transparent')} />
-										{group}
-									</Command.Item>
-								{/each}
-							</Command.Group>
-						</Command.List>
-					</Command.Root>
-				</Popover.Content>
-			</Popover.Root>
+		<div class="flex w-full gap-0">
+			<div class="flex-grow">
+				<Popover.Root bind:open={groupSelectOpen}>
+					<Popover.Trigger bind:ref={triggerRef} class="flex-grow">
+						{#snippet child({ props })}
+							<Button
+								variant="outline"
+								{...props}
+								role="combobox"
+								aria-expanded={groupSelectOpen}
+								class={`w-full justify-between !px-4 py-5${selectedGroup ? ' rounded-r-none' : ''}`}
+							>
+								{selectedGroup
+									? selectedGroup
+									: $language === 'ru'
+										? 'Выберите группу'
+										: 'Select a group'}
+								<ChevronsUpDown class="opacity-50" />
+							</Button>
+						{/snippet}
+					</Popover.Trigger>
+					<Popover.Content class="z-10 mt-[3px] w-[calc(100dvw-8px)] p-0 md:w-[320px]">
+						<Command.Root>
+							<Command.Input
+								placeholder={$language === 'ru' ? 'Искать группу' : 'Search for a group'}
+								class="h-9"
+								onfocusin={() => {
+									if ($viewport.vw < breakpoints.md) {
+										window.scrollTo({
+											top: window.scrollY + triggerRef.getBoundingClientRect().top - 8,
+											behavior: 'smooth'
+										});
+									}
+								}}
+								onfocusout={() => {
+									if ($viewport.vw < breakpoints.md) {
+										groupSelectOpen = false;
+										window.scrollTo({
+											top: 0,
+											behavior: 'smooth'
+										});
+									}
+								}}
+							/>
+							<Command.List>
+								<Command.Empty
+									>{$language === 'ru' ? 'Нет результатов' : 'No results'}</Command.Empty
+								>
+								<Command.Group class="max-h-[256px] overflow-y-auto">
+									{#each Object.keys(groupOptions) as group}
+										<Command.Item
+											value={group}
+											onSelect={() => {
+												selectedGroup = group;
+												handleGroupChange();
+												closeAndFocusTrigger();
+											}}
+										>
+											<Check class={cn(selectedGroup !== group && 'text-transparent')} />
+											{group}
+										</Command.Item>
+									{/each}
+								</Command.Group>
+							</Command.List>
+						</Command.Root>
+					</Popover.Content>
+				</Popover.Root>
+			</div>
 			{#if selectedGroup}
 				<Button
 					variant="outline"
 					size="icon"
-					class="shrink-0 rounded-l-none border-l-0"
+					class="shrink-0 rounded-l-none border-l-0 p-5"
 					onclick={() => {
 						selectedGroup = '';
 						handleGroupChange();
@@ -453,7 +471,7 @@
 			{@const lang = $language === 'ru' ? 'ru' : 'en'}
 			{#key [numberOfMonths, lang]}
 				<div
-					class="group flex min-h-9 w-full flex-col items-center justify-center rounded-md border-input bg-background px-3 py-2 font-medium shadow-md"
+					class="group border-input bg-background flex min-h-9 w-full flex-col items-center justify-center rounded-md px-4 py-3 font-medium shadow-md"
 				>
 					<div class="flex w-full items-center justify-between text-sm">
 						{#if selectedRange.start && selectedRange.end}
@@ -479,14 +497,16 @@
 
 	{#if scheduleStatus === 'error'}
 		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-			<Ban class="size-8 !text-red-700 dark:!text-red-400" />
-			<Alert.Title class="!pl-12 text-red-700 dark:text-red-400"
-				>{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}</Alert.Title
-			>
-			<Alert.Description class="!pl-12">{scheduleError}</Alert.Description>
+			<Ban class="mt-1 !size-8 !text-red-700 dark:!text-red-400" />
+			<Alert.Title class="!line-clamp-none !pl-5">
+				<p class="text-red-700 dark:text-red-400">
+					{$language === 'ru' ? 'Возникла проблема' : 'Error Occurred'}
+				</p>
+				<p class="text-muted-foreground">{scheduleError}</p>
+			</Alert.Title>
 		</Alert.Root>
 	{:else if scheduleStatus === 'loading'}
-		<Skeleton class="md:1/2 my-1 h-8 w-full md:w-[512px]" />
+		<Skeleton class="md:1/2 my-1 h-10 w-full md:w-[512px]" />
 	{:else if scheduleStatus === 'visible' && buildedSchedule}
 		<div
 			class="mx-auto my-1.5 grid grid-cols-1 justify-items-center gap-x-2 gap-y-3 md:p-2{Object.keys(
@@ -501,7 +521,7 @@
 		>
 			{#each Object.entries(buildedSchedule) as [key, day]}
 				<div
-					class="w-full min-w-[320px] max-w-[512px] rounded-md border bg-background p-1 shadow-md"
+					class="bg-background w-full max-w-[512px] min-w-[320px] rounded-md border p-1 shadow-md"
 				>
 					<Table.Root>
 						<Table.Header
@@ -512,9 +532,9 @@
 									: 'mt-4 bg-red-100 p-4 dark:bg-red-800/50'}"
 						>
 							<Table.Row>
-								<Table.Head class="w-1/3 text-right font-semibold text-foreground">{key}</Table.Head
+								<Table.Head class="text-foreground w-1/3 text-right font-semibold">{key}</Table.Head
 								>
-								<Table.Head class="w-2/3 text-left font-semibold text-foreground"
+								<Table.Head class="text-foreground w-2/3 text-left font-semibold"
 									>{getDayOfWeek(key, $language)}</Table.Head
 								>
 							</Table.Row>
@@ -573,83 +593,60 @@
 		{#if lastQuery && scheduleStatus !== 'loading'}
 			<Button
 				variant="outline"
-				class="md:1/2 my-1 w-full !justify-start py-5 md:w-[512px]"
+				class="md:1/2 my-1 w-full !justify-start py-5 duration-0 md:w-[512px]"
 				onclick={async () => {
 					selectedGroup = lastQuery;
 					handleGroupChange();
 				}}
 			>
-				<MousePointerClick class="ml-1 mr-2.5 !size-6 !text-cyan-700 dark:!text-cyan-400" />
+				<MousePointerClick class="mr-2.5 ml-2 !size-6 !text-cyan-700 dark:!text-cyan-400" />
 				<p>{$language === 'ru' ? 'Последний запрос: ' : 'Last query:'}</p>
 				<p class="font-semibold !text-cyan-700 dark:!text-cyan-400">
 					{lastQuery}
 				</p>
 			</Button>
 		{/if}
-		<Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-			<HeartHandshake class="size-8 !text-green-700 dark:!text-green-400" />
-			<Alert.Title class="!pl-12">
-				{#if $language === 'ru'}
-					Лучшая <span class="text-green-700 dark:text-green-400">благодарность</span>
-					<a class="font-semibold hover:underline" href="https://ma.cyou/">Автору</a>
-				{:else}
-					Best Thanks to the <a class="font-semibold hover:underline" href="https://ma.cyou/"
-						>Author</a
-					>
-				{/if}
+		<Alert.Root class="my-1 w-full md:w-[512px]">
+			<HeartHandshake class="mt-0.5 !size-8 !text-green-700 dark:!text-green-400" />
+			<Alert.Title class="!line-clamp-none !pl-5">
+				<p>
+					{#if $language === 'ru'}
+						Лучшая благодарность
+						<a
+							class="font-semibold text-green-700 italic hover:underline dark:text-green-400"
+							href="https://ma.cyou/">Автору</a
+						>
+					{:else}
+						Best Thanks to the <a
+							class="font-semibold text-green-700 italic hover:underline dark:text-green-400"
+							href="https://ma.cyou/">Author</a
+						>
+					{/if}
+				</p>
+				<p>
+					{#if $language === 'ru'}
+						это подписка на <a
+							class="font-semibold text-green-700 italic hover:underline dark:text-green-400"
+							href="https://github.com/Mapagmataas1331">GitHub</a
+						>
+						и звездочка на
+						<a
+							class="font-semibold text-green-700 italic hover:underline dark:text-green-400"
+							href="https://github.com/Mapagmataas1331/ma">Репозиторий</a
+						>
+					{:else}
+						is a subscription on <a
+							class="font-semibold text-green-700 italic hover:underline dark:text-green-400"
+							href="https://github.com/Mapagmataas1331">GitHub</a
+						>
+						and a star on
+						<a
+							class="font-semibold text-green-700 italic hover:underline dark:text-green-400"
+							href="https://github.com/Mapagmataas1331/ma">Repository</a
+						>
+					{/if}
+				</p>
 			</Alert.Title>
-			<Alert.Description class="!pl-12">
-				{#if $language === 'ru'}
-					это подписка на <a
-						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
-						href="https://github.com/Mapagmataas1331">GitHub</a
-					>
-					и звездочка на
-					<a
-						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
-						href="https://github.com/Mapagmataas1331/ma">Репозиторий</a
-					>
-				{:else}
-					is a subscription on <a
-						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
-						href="https://github.com/Mapagmataas1331">GitHub</a
-					>
-					and a star on
-					<a
-						class="font-semibold italic text-green-700 hover:underline dark:text-green-400"
-						href="https://github.com/Mapagmataas1331/ma">Repository</a
-					>
-				{/if}
-			</Alert.Description>
 		</Alert.Root>
-		<!-- <Alert.Root class="md:1/2 my-1 w-full md:w-[512px]">
-			<Ban class="size-8 !text-red-700 dark:!text-red-400" />
-			<Alert.Title class="!pl-12">
-				{#if $language === 'ru'}
-					<span class="text-red-700 dark:text-red-400">Колледж</span> опять сломал
-					<span class="text-red-700 dark:text-red-400">расписание</span>
-				{:else}
-					<span class="text-red-700 dark:text-red-400">College</span> brocke
-					<span class="text-red-700 dark:text-red-400">schedule</span> again
-				{/if}
-			</Alert.Title>
-			<Alert.Description class="!pl-12">
-				{#if $language === 'ru'}
-					Подробнее здесь:
-					<a
-						class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
-						href="/home#news"
-						>Новости
-					</a>
-				{:else}
-					More info here:
-					<a
-						class="font-semibold italic text-cyan-700 hover:underline dark:text-cyan-400"
-						href="/home#news"
-						>News
-					</a>
-				{/if}
-			</Alert.Description>
-		</Alert.Root> -->
 	{/if}
 </div>

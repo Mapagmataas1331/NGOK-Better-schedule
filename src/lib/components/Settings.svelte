@@ -65,7 +65,7 @@
 		<div class="flex items-center space-x-2">
 			<p class="min-w-[48px]">{$language === 'ru' ? setting.nameRu : setting.name}:</p>
 			<Select.Root type="single" name={key} bind:value={state.current}>
-				<Select.Trigger>
+				<Select.Trigger class="w-full">
 					{triggerContent(setting)}
 				</Select.Trigger>
 				<Select.Content>

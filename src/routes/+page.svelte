@@ -84,6 +84,9 @@
 			dates = extractDates();
 
 			scheduleStatus = 'hidden';
+			setTimeout(() => {
+				if (selectedGroup) buildSchedule();
+			}, 1000);
 		}
 
 		const data = await fetchTableData('student');

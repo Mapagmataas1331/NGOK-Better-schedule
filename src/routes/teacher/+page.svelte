@@ -92,6 +92,9 @@
 			getInitialParams();
 
 			scheduleStatus = 'hidden';
+			setTimeout(() => {
+				if (selectedTeacher) buildSchedule();
+			}, 1000);
 		}
 
 		const data = await fetchTableData('teacher');

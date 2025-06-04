@@ -125,7 +125,7 @@
 			<h1
 				class="my-1 ml-2 text-lg font-semibold text-yellow-700 md:my-2 md:text-xl dark:text-yellow-400"
 			>
-				{$language === 'ru' ? 'Поломка 02.06.25' : 'Issue 02.06.25'}
+				{$language === 'ru' ? 'Поломка 04.06.25' : 'Issue 04.06.25'}
 			</h1>
 			<Separator />
 			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
@@ -142,10 +142,13 @@
 						? 'Нет догадок почему и зачем, была проделана огромная работа и все коту под хвост('
 						: 'There are no suspicions why and how, a huge work was done and now - all gone('}
 				</p>
-				<p class="p-px text-sm font-normal md:text-base">
+				<p class="t p-px text-sm font-normal line-through md:text-base">
 					{$language === 'ru'
 						? 'Я постараюсь починить поломку как можно быстрее.'
 						: "I'll try to fix the issue as soon as possible."}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru' ? 'Уже починил!' : 'Already fixed!'}
 				</p>
 			</div>
 		</div>

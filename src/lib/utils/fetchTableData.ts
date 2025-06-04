@@ -23,13 +23,13 @@ const formatFetchError = (error: unknown): string => {
 	return `Error: ${String(error) || 'Unknown error'}`;
 };
 
-export const fetchTableData = async (sheet: string) => {
+export const fetchTableData = async (sheet: string, firstY: number) => {
 	const result: { schedule: string[][] | null; scheduleError: string | null } = {
 		schedule: null,
 		scheduleError: null
 	};
 
-	const url = await buildUrl(sheet);
+	const url = await buildUrl(sheet, firstY);
 	if (!url) {
 		result.scheduleError = 'Failed to build URL: sheet name could not be determined.';
 		return result;
@@ -52,10 +52,11 @@ export const fetchTableData = async (sheet: string) => {
 	}
 };
 
-const buildUrl = async (sheet: string): Promise<string> => {
+const buildUrl = async (sheet: string, firstY: number): Promise<string> => {
 	const sheetName = await getSheetName(sheet);
 	if (!sheetName) return '';
-	return `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName)}?key=${apiKey}`;
+	const range = `${encodeURIComponent(sheetName)}!A${firstY}:ZZ`;
+	return `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
 };
 
 const getSheetName = async (sheet: string): Promise<string | null> => {

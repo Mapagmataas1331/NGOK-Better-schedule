@@ -29,25 +29,14 @@
 	import { type DateRange } from 'bits-ui';
 
 	const params = {
-		teachNum: { x: 0, firstY: 3, step: 2 }, // x: 0, firstY: 5, step: 2
-		teacher: { x: 1, firstY: 3, step: 2 }, // x: 1, firstY: 5, step: 2
-		// hours: { x: 2, firstY: 5, step: 2 },
-		date: { y: 0, firstX: 2, step: 2 * 6 }, // y: 1, firstX: 3, step: 2 * 6
-		lesNum: { y: 1, firstX: 2, step: 2 }, // y: 2, firstX: 3, step: 2
-		// time: { y: 3, firstX: 3, step: 2 },
-		group: { firstY: 3, firstX: 2, step: 2 }, // firstY: 5, firstX: 3, step: 2
-		type: { firstY: 4, firstX: 2, step: 2 }, // firstY: 6, firstX: 3, step: 2
-		auditorium: { firstY: 3, firstX: 3, step: 2 } // firstY: 5, firstX: 4, step: 2
+		globalFirstY: 2066,
+		teachNum: { x: 0, firstY: 4, step: 1 },
+		teacher: { x: 1, firstY: 4, step: 1 },
+		hours: { x: 2, firstY: 4, step: 1 },
+		date: { y: 0, firstX: 3, step: 2 * 6 },
+		lesNum: { y: 1, firstX: 3, step: 2 },
+		time: { y: 2, firstX: 3, step: 2 }
 	};
-
-	const times = [
-		'09:00 - 10:30',
-		'10:40 - 12:10',
-		'12:30 - 14:00',
-		'14:20 - 15:50',
-		'16:00 - 17:30',
-		'17:40 - 19:10'
-	];
 
 	type Lesson = {
 		time: string;
@@ -75,7 +64,7 @@
 
 	let schedule: string[][] | null = null;
 	let dates: Record<string, number> = {};
-	let teacherOptions: { [key: string]: number[] } = $state({});
+	let teacherOptions: { [key: string]: number } = $state({});
 	let buildedSchedule: Record<string, Lesson[]> = $state({});
 
 	let rangeVisible = $state(false);
@@ -89,7 +78,8 @@
 
 		if (localStorage.getItem('tdata')) {
 			schedule = JSON.parse(localStorage.getItem('tdata')!);
-			getInitialParams();
+			teacherOptions = extractTeachers();
+			dates = extractDates();
 
 			scheduleStatus = 'hidden';
 			setTimeout(() => {
@@ -97,7 +87,7 @@
 			}, 1000);
 		}
 
-		const data = await fetchTableData('teacher');
+		const data = await fetchTableData('teacher', params.globalFirstY);
 		if (data.scheduleError || !data.schedule) {
 			if (scheduleError || !schedule) {
 				scheduleStatus = 'error';
@@ -109,7 +99,8 @@
 		schedule = data.schedule;
 		scheduleError = data.scheduleError;
 
-		getInitialParams();
+		teacherOptions = extractTeachers();
+		dates = extractDates();
 
 		scheduleStatus = 'hidden';
 
@@ -117,33 +108,39 @@
 		localStorage.setItem('tdata', JSON.stringify(schedule));
 	};
 
-	const getInitialParams = async () => {
+	const extractTeachers = () => {
 		if (!schedule) {
 			scheduleError = 'Error: Schedule is null';
 			scheduleStatus = 'error';
 			return {};
 		}
+		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
+			const cell = row[1];
+			if (index >= params.teacher.firstY && cell && !acc[cell]) acc[cell] = index;
+			return acc;
+		}, {});
+	};
 
-		teacherOptions = schedule.reduce(
-			(acc: { [key: string]: number[] }, row: string[], index: number) => {
-				const cell = row[params.teacher.x];
-				if (cell && !cell.includes('Преподаватель') && !cell.includes('!Аудитория')) {
-					if (!acc[cell]) acc[cell] = [];
-					acc[cell].push(index);
-				}
+	const extractDates = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
+		return schedule[params.date.y].reduce(
+			(acc: { [key: string]: number }, cell: string, index: number) => {
+				const dateCell = cell.split(' ')[1];
+				if (
+					index > 1 &&
+					dateCell &&
+					dateCell !== 'undefined' &&
+					/\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)
+				)
+					acc[`${dateCell.slice(0, -4)}${dateCell.split('.')[2].slice(-2)}`] = index;
 				return acc;
 			},
 			{}
 		);
-
-		dates = schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
-			if (row[2]) {
-				const dateCell = row[2].split(' ')[1];
-				if (dateCell && dateCell !== 'undefined' && /\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell))
-					acc[`${dateCell.slice(0, -4)}${dateCell.split('.')[2].slice(-2)}`] = index;
-			}
-			return acc;
-		}, {});
 	};
 
 	const handleTeacherChange = async (saveLastQuery = true) => {
@@ -165,7 +162,7 @@
 				interval && clearInterval(interval);
 				return;
 			}
-			const data = await fetchTableData('teacher');
+			const data = await fetchTableData('teacher', params.globalFirstY);
 			if (data.scheduleError || !data.schedule) {
 				if (scheduleError || !schedule) {
 					scheduleStatus = 'error';
@@ -175,7 +172,8 @@
 				}
 			}
 			schedule = data.schedule;
-			getInitialParams();
+			teacherOptions = extractTeachers();
+			dates = extractDates();
 			toast.success(
 				$language === 'ru'
 					? 'Расписание обновлено в ' + new Date().toLocaleString('ru-RU', { hour12: false })
@@ -225,33 +223,26 @@
 				return {};
 			}
 
-			let teacher = teacherOptions[selectedTeacher];
-			let teacherForDate: number = 0;
-			for (let i = 0; i < teacher.length; i++) {
-				if (!teacher[i + 1] || teacher[i] > dates[date]) {
-					teacherForDate = teacher[i];
-					break;
-				}
-			}
-
-			if (teacherForDate === 0) {
-				return acc;
-			}
-
 			let lessons: Lesson[] = [];
-			for (let i = params.lesNum.firstX; i < params.lesNum.step * 6; i += params.lesNum.step) {
-				const time = times[Number(schedule[params.lesNum.y][i]) - 1];
-				const group = schedule[teacherForDate][i];
-				const type = schedule[teacherForDate + 1][i];
-				const auditorium = schedule[teacherForDate][i + 1];
+			if (dates[date]) {
+				for (
+					let i = dates[date];
+					i < dates[getNextDate(date)] || i < dates[date] + params.date.step;
+					i += params.lesNum.step
+				) {
+					const time = schedule[params.time.y][i];
+					const group = schedule[teacherOptions[selectedTeacher]][i];
+					const type = schedule[teacherOptions[selectedTeacher] + 1][i];
+					const auditorium = schedule[teacherOptions[selectedTeacher]][i + 1];
 
-				if (group) {
-					lessons.push({
-						time: time || '',
-						group: group || '',
-						type: type || '',
-						auditorium: auditorium || ''
-					});
+					if (group) {
+						lessons.push({
+							time: time || '',
+							group: group || '',
+							type: type || '',
+							auditorium: auditorium || ''
+						});
+					}
 				}
 			}
 
@@ -270,6 +261,16 @@
 			start: today(getLocalTimeZone()),
 			end: today(getLocalTimeZone()).add({ days: 6 })
 		};
+	};
+
+	const getNextDate = (date: string) => {
+		const [day, month, year] = date.split('.');
+		const dateObj = new Date(`20${year}-${month}-${day}`);
+		dateObj.setDate(dateObj.getDate() + 1);
+		const nextDay = String(dateObj.getDate()).padStart(2, '0');
+		const nextMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
+		const nextYear = dateObj.getFullYear().toString().slice(-2);
+		return `${nextDay}.${nextMonth}.${nextYear}`;
 	};
 
 	const getDayOfWeek = (date: string, lang = 'ru') => {

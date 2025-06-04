@@ -29,14 +29,15 @@
 	import { type DateRange } from 'bits-ui';
 
 	const params = {
-		date: { x: 0, firstY: 1, step: 3 * 6 }, // x: 0, firstY: 2, step: 3 * 6
-		lesNum: { x: 1, firstY: 1, step: 3 }, // x: 1, firstY: 2, step: 3
-		time: { x: 2, firstY: 1, step: 3 }, // x: 2, firstY: 2, step: 3
-		group: { y: 0, firstX: 4, step: 2 }, // y: 0, firstX: 3, step: 2
-		discipline: { firstX: 4, firstY: 1, step: 3 }, // firstX: 3, firstY: 2, step: 3
-		type: { firstX: 4, firstY: 2, step: 3 }, // firstX: 3, firstY: 3, step: 3
-		teacher: { firstX: 4, firstY: 3, step: 3 }, // firstX: 3, firstY: 4, step: 3
-		auditorium: { firstX: 5, firstY: 1, step: 3 } // firstX: 4, firstY: 2, step: 3
+		globalFirstY: 1,
+		date: { x: 0, firstY: 1, step: 3 * 6 },
+		lesNum: { x: 1, firstY: 1, step: 3 },
+		time: { x: 2, firstY: 1, step: 3 },
+		group: { y: 0, firstX: 4, step: 2 },
+		discipline: { firstX: 4, firstY: 1, step: 3 },
+		type: { firstX: 4, firstY: 2, step: 3 },
+		teacher: { firstX: 4, firstY: 3, step: 3 },
+		auditorium: { firstX: 5, firstY: 1, step: 3 }
 	};
 
 	type Lesson = {
@@ -89,7 +90,7 @@
 			}, 1000);
 		}
 
-		const data = await fetchTableData('student');
+		const data = await fetchTableData('student', params.globalFirstY);
 		if (data.scheduleError || !data.schedule) {
 			if (scheduleError || !schedule) {
 				scheduleStatus = 'error';
@@ -129,7 +130,7 @@
 				interval && clearInterval(interval);
 				return;
 			}
-			const data = await fetchTableData('student');
+			const data = await fetchTableData('student', params.globalFirstY);
 			if (data.scheduleError || !data.schedule) {
 				if (scheduleError || !schedule) {
 					scheduleStatus = 'error';
@@ -139,6 +140,8 @@
 				}
 			}
 			schedule = data.schedule;
+			groupOptions = extractGroups();
+			dates = extractDates();
 			toast.success(
 				$language === 'ru'
 					? 'Расписание обновлено в ' + new Date().toLocaleString('ru-RU', { hour12: false })

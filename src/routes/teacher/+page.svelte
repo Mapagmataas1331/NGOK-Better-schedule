@@ -29,7 +29,7 @@
 	import { type DateRange } from 'bits-ui';
 
 	const params = {
-		globalFirstY: 2066,
+		globalFirstY: 2268,
 		teachNum: { x: 0, firstY: 4, step: 1 },
 		teacher: { x: 1, firstY: 4, step: 1 },
 		hours: { x: 2, firstY: 4, step: 1 },

@@ -34,8 +34,7 @@
 		teacher: { x: 1, firstY: 4, step: 1 },
 		hours: { x: 2, firstY: 4, step: 1 },
 		date: { y: 0, firstX: 3, step: 2 * 6 },
-		lesNum: { y: 1, firstX: 3, step: 2 },
-		time: { y: 2, firstX: 3, step: 2 }
+		lesNum: { y: 1, firstX: 3, step: 2 }
 	};
 
 	type Lesson = {
@@ -44,6 +43,15 @@
 		type: string;
 		auditorium: string;
 	};
+
+	const times = {
+		'1': '9:00 - 10:30',
+		'2': '10:40 - 12:10',
+		'3': '12:30 - 14:00',
+		'4': '14:20 - 15:50',
+		'5': '16:00 - 17:30',
+		'6': '17:40 - 19:10'
+	}
 
 	let selectedTeacher = $state('');
 
@@ -230,7 +238,7 @@
 					i < dates[getNextDate(date)] || i < dates[date] + params.date.step;
 					i += params.lesNum.step
 				) {
-					const time = schedule[params.time.y][i];
+					const time = times[(schedule[params.lesNum.y][i]) as keyof typeof times];
 					const group = schedule[teacherOptions[selectedTeacher]][i];
 					const type = schedule[teacherOptions[selectedTeacher] + 1][i];
 					const auditorium = schedule[teacherOptions[selectedTeacher]][i + 1];

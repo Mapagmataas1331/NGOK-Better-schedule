@@ -45,13 +45,13 @@
 	};
 
 	const times = {
-		'1': '9:00 - 10:30',
+		'1': '09:00 - 10:30',
 		'2': '10:40 - 12:10',
 		'3': '12:30 - 14:00',
 		'4': '14:20 - 15:50',
 		'5': '16:00 - 17:30',
 		'6': '17:40 - 19:10'
-	}
+	};
 
 	let selectedTeacher = $state('');
 
@@ -238,7 +238,7 @@
 					i < dates[getNextDate(date)] || i < dates[date] + params.date.step;
 					i += params.lesNum.step
 				) {
-					const time = times[(schedule[params.lesNum.y][i]) as keyof typeof times];
+					const time = times[schedule[params.lesNum.y][i] as keyof typeof times];
 					const group = schedule[teacherOptions[selectedTeacher]][i];
 					const type = schedule[teacherOptions[selectedTeacher] + 1][i];
 					const auditorium = schedule[teacherOptions[selectedTeacher]][i + 1];

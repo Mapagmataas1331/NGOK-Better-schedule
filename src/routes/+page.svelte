@@ -51,6 +51,8 @@
 	let selectedGroup = $state('');
 
 	let groupSelectOpen = $state(false);
+	let rangeSelectOpen = $state(false);
+
 	let triggerRef = $state<HTMLButtonElement>(null!);
 	function closeAndFocusTrigger() {
 		groupSelectOpen = false;
@@ -476,8 +478,14 @@
 			{@const numberOfMonths = $viewport.vw >= breakpoints.md ? 2 : 1}
 			{@const lang = $language === 'ru' ? 'ru' : 'en'}
 			{#key [numberOfMonths, lang]}
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<div
-					class="group border-input bg-background flex min-h-9 w-full flex-col items-center justify-center rounded-md px-4 py-3 font-medium shadow-md"
+					class="border-input bg-background flex min-h-9 w-full flex-col items-center justify-center rounded-md px-4 py-3 font-medium shadow-md"
+					onmouseenter={() => (rangeSelectOpen = true)}
+					onmouseleave={() => (rangeSelectOpen = false)}
+					onclick={() => (rangeSelectOpen = !rangeSelectOpen)}
+					role="button"
+					tabindex="0"
 				>
 					<div class="flex w-full items-center justify-between text-sm">
 						{#if selectedRange.start && selectedRange.end}
@@ -487,15 +495,17 @@
 						{/if}
 						<Calendar class="size-4 opacity-50" />
 					</div>
-					<Separator class="mt-2 hidden group-hover:block"></Separator>
-					<RangeCalendar
-						bind:value={selectedRange}
-						weekStartsOn={lang === 'ru' ? 0 : 1}
-						{numberOfMonths}
-						class="hidden capitalize group-hover:block"
-						onValueChange={handleRangeChange}
-						locale={lang === 'ru' ? 'ru' : 'en'}
-					/>
+					<div class={rangeSelectOpen ? 'block' : 'hidden'}>
+						<Separator class="mt-2"></Separator>
+						<RangeCalendar
+							bind:value={selectedRange}
+							weekStartsOn={lang === 'ru' ? 0 : 1}
+							{numberOfMonths}
+							class="capitalize"
+							onValueChange={handleRangeChange}
+							locale={lang === 'ru' ? 'ru' : 'en'}
+						/>
+					</div>
 				</div>
 			{/key}
 		{/if}

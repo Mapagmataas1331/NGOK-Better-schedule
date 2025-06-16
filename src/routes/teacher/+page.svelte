@@ -29,7 +29,7 @@
 	import { type DateRange } from 'bits-ui';
 
 	const params = {
-		globalFirstY: 2268,
+		globalFirstY: 2447,
 		teachNum: { x: 0, firstY: 4, step: 1 },
 		teacher: { x: 1, firstY: 4, step: 1 },
 		hours: { x: 2, firstY: 4, step: 1 },
@@ -490,11 +490,15 @@
 					class="border-input bg-background flex min-h-9 w-full flex-col items-center justify-center rounded-md px-4 py-3 font-medium shadow-md"
 					onmouseenter={() => (rangeSelectOpen = true)}
 					onmouseleave={() => (rangeSelectOpen = false)}
-					onclick={() => (rangeSelectOpen = !rangeSelectOpen)}
 					role="button"
 					tabindex="0"
 				>
-					<div class="flex w-full items-center justify-between text-sm">
+					<div
+						class="flex w-full items-center justify-between text-sm"
+						onclick={() => (rangeSelectOpen = !rangeSelectOpen)}
+						role="button"
+						tabindex="0"
+					>
 						{#if selectedRange.start && selectedRange.end}
 							{dateValueToString(selectedRange.start)} - {dateValueToString(selectedRange.end)}
 						{:else}

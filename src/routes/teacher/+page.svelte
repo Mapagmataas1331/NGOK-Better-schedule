@@ -29,28 +29,20 @@
 	import { type DateRange } from 'bits-ui';
 
 	const params = {
-		globalFirstY: 2447,
-		teachNum: { x: 0, firstY: 4, step: 1 },
-		teacher: { x: 1, firstY: 4, step: 1 },
-		hours: { x: 2, firstY: 4, step: 1 },
-		date: { y: 0, firstX: 3, step: 2 * 6 },
-		lesNum: { y: 1, firstX: 3, step: 2 }
+		globalFirstY: 1,
+		teacher: { x: 0, firstY: 4, step: 2 * 6 },
+		time: { x: 2, firstY: 4, step: 2 },
+		date: { y: 0, firstX: 3, step: 4 },
+		discipline: { firstY: 4, firstX: 3, step: 2 },
+		group: { firstY: 4, firstX: 3, step: 2 },
+		auditorium: { firstY: 4, firstX: 3, step: 2 }
 	};
 
 	type Lesson = {
 		time: string;
+    discipline: string;
 		group: string;
-		type: string;
 		auditorium: string;
-	};
-
-	const times = {
-		'1': '09:00 - 10:30',
-		'2': '10:40 - 12:10',
-		'3': '12:30 - 14:00',
-		'4': '14:20 - 15:50',
-		'5': '16:00 - 17:30',
-		'6': '17:40 - 19:10'
 	};
 
 	let selectedTeacher = $state('');
@@ -125,7 +117,7 @@
 			return {};
 		}
 		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
-			const cell = row[1];
+			const cell = row[params.teacher.x];
 			if (index >= params.teacher.firstY && cell && !acc[cell]) acc[cell] = index;
 			return acc;
 		}, {});
@@ -137,20 +129,27 @@
 			scheduleStatus = 'error';
 			return {};
 		}
-		return schedule[params.date.y].reduce(
-			(acc: { [key: string]: number }, cell: string, index: number) => {
-				const dateCell = cell.split(' ')[1];
-				if (
-					index > 1 &&
-					dateCell &&
-					dateCell !== 'undefined' &&
-					/\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)
-				)
-					acc[`${dateCell.slice(0, -4)}${dateCell.split('.')[2].slice(-2)}`] = index;
-				return acc;
-			},
-			{}
-		);
+  return schedule[params.date.y].reduce(
+    (acc: { [key: string]: number }, cell: string, index: number) => {
+      const match = cell.match(/\b\d{2}\.\d{2}\.(\d{2}|\d{4})\b/);
+      const dateCell = match ? match[0] : null;
+
+      if (index >= params.date.firstX && dateCell) {
+        if (/^\d{2}\.\d{2}\.\d{2}$/.test(dateCell)) {
+          acc[dateCell] = index;
+        } else if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateCell)) {
+          const shortDate = dateCell.replace(
+            /(\d{2}\.\d{2})\.(\d{4})/,
+            (_, d, y) => `${d}.${y.slice(-2)}`
+          );
+          acc[shortDate] = index;
+        }
+      }
+
+      return acc;
+    },
+    {}
+  );
 	};
 
 	const handleTeacherChange = async (saveLastQuery = true) => {
@@ -227,6 +226,7 @@
 		}
 
 		buildedSchedule = selectedDates.reduce((acc: Record<string, Lesson[]>, date) => {
+      const times = ['09:00 - 10:30', '10:40 - 12:10', '12:30 - 14:00', '14:20 - 15:50', '16:00 - 17:30', '17:40 - 19:10']
 			if (!schedule) {
 				scheduleError = 'Error: Schedule is null';
 				scheduleStatus = 'error';
@@ -236,24 +236,25 @@
 			let lessons: Lesson[] = [];
 			if (dates[date]) {
 				for (
-					let i = dates[date];
-					i < dates[getNextDate(date)] || i < dates[date] + params.date.step;
-					i += params.lesNum.step
+					let i = 0;
+					i < params.teacher.step;
+					i += params.time.step
 				) {
-					const time = times[schedule[params.lesNum.y][i] as keyof typeof times];
-					const group = schedule[teacherOptions[selectedTeacher]][i];
-					const type = schedule[teacherOptions[selectedTeacher] + 1][i];
-					const auditorium = schedule[teacherOptions[selectedTeacher]][i + 1];
+          let time = schedule[teacherOptions[selectedTeacher] + i][params.time.x]
+          if (time != undefined && time != "") time = times[i / 2]
+          const discipline = schedule[teacherOptions[selectedTeacher] + i][dates[date]]
+          const group = schedule[teacherOptions[selectedTeacher] + i + 1][dates[date]];
+          const auditorium = schedule[teacherOptions[selectedTeacher] + i][dates[date] + 3];
 
-					if (group) {
-						lessons.push({
-							time: time || '',
-							group: group || '',
-							type: type || '',
-							auditorium: auditorium || ''
-						});
-					}
-				}
+          if (discipline) {
+            lessons.push({
+              time: time || '',
+              discipline: discipline || '',
+              group: group || '',
+              auditorium: auditorium || ''
+            });
+          }
+        }
 			}
 
 			acc[date] = lessons;
@@ -590,7 +591,7 @@
 												? lesson.time.replace(/\./g, ':')
 												: lesson.time}</Table.Cell
 										>
-										<Table.Cell class="text-left">{lesson.group}</Table.Cell>
+										<Table.Cell class="text-left">{lesson.discipline}</Table.Cell>
 									</Table.Row>
 									<Table.Row>
 										<Table.Cell class="text-right">
@@ -602,7 +603,7 @@
 												{lesson.auditorium}
 											{/if}
 										</Table.Cell>
-										<Table.Cell class="text-left">{lesson.type}</Table.Cell>
+										<Table.Cell class="text-left">{lesson.group}</Table.Cell>
 									</Table.Row>
 								{/each}
 							{:else}

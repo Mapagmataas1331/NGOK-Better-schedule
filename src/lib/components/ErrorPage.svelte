@@ -15,7 +15,7 @@
 </script>
 
 <div
-	class="flex h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center justify-center bg-gradient-to-b from-white to-sky-200 p-4 text-center dark:from-sky-800 dark:to-black md:h-[calc(100dvh_-_4rem)]"
+	class="flex h-[calc(100dvh_-_3.5rem)] w-full flex-col items-center justify-center bg-gradient-to-b from-white to-sky-200 p-4 text-center md:h-[calc(100dvh_-_4rem)] dark:from-sky-800 dark:to-black"
 >
 	<div
 		class="mx-8 my-auto aspect-square h-[100vw] max-h-[calc((100dvh_-_3.5rem)_/_2)] max-w-full drop-shadow-xl"
@@ -24,9 +24,9 @@
 	</div>
 
 	<div
-		class="mb-auto w-full max-w-lg transform rounded-lg bg-background/25 p-4 shadow-xl backdrop-blur-lg transition-transform hover:scale-105 hover:shadow-2xl md:my-auto md:p-8"
+		class="bg-background/25 mb-auto w-full max-w-lg transform rounded-lg p-4 shadow-xl backdrop-blur-lg transition-transform hover:scale-105 hover:shadow-2xl md:my-auto md:p-8"
 	>
-		<h1 class="mb-6 text-4xl font-extrabold text-red-700 dark:text-red-400 md:text-5xl">
+		<h1 class="mb-6 text-4xl font-extrabold text-red-700 md:text-5xl dark:text-red-400">
 			{errorStatus}
 		</h1>
 		<p class="mb-2 text-lg font-medium md:text-xl">{errorMessage}</p>

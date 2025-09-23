@@ -2,8 +2,9 @@ const sheetId = '1FiMov0r4UUDKT6A56NWMImpoUakDC2YDevgaOpJQ7Qc';
 const apiKey = 'AIzaSyAxU9vV25C6ylby6cg9BO3SLz7_7xj50wo';
 
 const gidMap: Record<string, string> = {
-	student: '1374615807',
-	teacher: '1870669808'
+	student: '2059729816',
+	teacher: '434865405',
+	auditorium: '158503154'
 };
 
 export const colToLetter = (col: number): string => {

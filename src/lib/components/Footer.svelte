@@ -12,7 +12,7 @@
 <footer
 	class="{clazz !== ''
 		? clazz + ' '
-		: ''}flex flex-col items-center justify-between gap-1 p-2 pb-3 text-xs text-muted-foreground md:flex-row md:gap-3 md:px-4 md:py-3"
+		: ''}flex text-muted-foreground flex-col items-center justify-between gap-1 p-2 pb-3 text-xs md:flex-row md:gap-3 md:px-4 md:py-3"
 >
 	<div>
 		© <a class="hover:text-foreground" href="https://ma.cyou/">ma.cyou</a> (<a

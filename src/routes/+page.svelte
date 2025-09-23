@@ -30,20 +30,18 @@
 
 	const params = {
 		globalFirstY: 1,
-		date: { x: 0, firstY: 1, step: 3 * 6 },
-		lesNum: { x: 1, firstY: 1, step: 3 },
-		time: { x: 2, firstY: 1, step: 3 },
-		group: { y: 0, firstX: 4, step: 2 },
-		discipline: { firstX: 4, firstY: 1, step: 3 },
-		type: { firstX: 4, firstY: 2, step: 3 },
-		teacher: { firstX: 4, firstY: 3, step: 3 },
-		auditorium: { firstX: 5, firstY: 1, step: 3 }
+		date: { x: 0, firstY: 1, step: 2 * 6 },
+		lesNum: { x: 1, firstY: 1, step: 2 },
+		time: { x: 2, firstY: 1, step: 2 },
+		group: { y: 0, firstX: 3, step: 4 },
+		discipline: { firstX: 3, firstY: 1, step: 2 },
+		teacher: { firstX: 3, firstY: 2, step: 2 },
+		auditorium: { firstX: 4, firstY: 1, step: 2 }
 	};
 
 	type Lesson = {
 		time: string;
 		discipline: string;
-		type: string;
 		teacher: string;
 		auditorium: string;
 	};
@@ -202,15 +200,13 @@
 				) {
 					const time = schedule[i][params.time.x];
 					const discipline = schedule[i][groupOptions[selectedGroup]];
-					const type = schedule[i + 1][groupOptions[selectedGroup]];
-					const teacher = schedule[i + 2][groupOptions[selectedGroup]];
-					const auditorium = schedule[i][groupOptions[selectedGroup] + 1];
+					const teacher = schedule[i + 1][groupOptions[selectedGroup]];
+					const auditorium = schedule[i][groupOptions[selectedGroup] + 3];
 
 					if (discipline) {
 						lessons.push({
 							time: time || '',
 							discipline: discipline || '',
-							type: type || '',
 							teacher: teacher || '',
 							auditorium: auditorium || ''
 						});
@@ -247,6 +243,30 @@
 		}, {});
 	};
 
+	const extractDates = () => {
+		if (!schedule) {
+			scheduleError = 'Error: Schedule is null';
+			scheduleStatus = 'error';
+			return {};
+		}
+		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
+			if (!row[params.date.x]) return acc;
+			const dateCell = row[params.date.x].split(' ')[0];
+			if (index >= params.date.firstY && dateCell && dateCell !== 'undefined') {
+				if (/\b(\d{2}\.\d{2}\.\d{2})\b/.test(dateCell)) {
+					acc[dateCell] = index;
+				} else if (/\b(\d{2}\.\d{2}\.\d{4})\b/.test(dateCell)) {
+					const shortDate = dateCell.replace(
+						/(\d{2}\.\d{2})\.(\d{4})/,
+						(_, d, y) => `${d}.${y.slice(-2)}`
+					);
+					acc[shortDate] = index;
+				}
+			}
+			return acc;
+		}, {});
+	};
+
 	const getNextDate = (date: string) => {
 		const [day, month, year] = date.split('.');
 		const dateObj = new Date(`20${year}-${month}-${day}`);
@@ -275,27 +295,6 @@
 		const [day, month, year] = date.split('.');
 		const dateObj = new Date(`20${year}-${month}-${day}`);
 		return daysOfWeek[dateObj.getDay()] || 'Неизвестный день!';
-	};
-
-	const extractDates = () => {
-		if (!schedule) {
-			scheduleError = 'Error: Schedule is null';
-			scheduleStatus = 'error';
-			return {};
-		}
-		return schedule.reduce((acc: { [key: string]: number }, row: string[], index: number) => {
-			if (!row[params.date.x]) return acc;
-			const dateCell = row[params.date.x].split(' ')[1];
-			if (
-				index >= params.date.firstY &&
-				dateCell &&
-				dateCell !== 'undefined' &&
-				/\b(\d{2}\.\d{2}\.\d{2})\b/.test(dateCell)
-			) {
-				acc[dateCell] = index;
-			}
-			return acc;
-		}, {});
 	};
 
 	onMount(async () => {

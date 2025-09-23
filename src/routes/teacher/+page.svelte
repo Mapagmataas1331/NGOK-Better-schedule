@@ -40,7 +40,7 @@
 
 	type Lesson = {
 		time: string;
-    discipline: string;
+		discipline: string;
 		group: string;
 		auditorium: string;
 	};
@@ -129,27 +129,27 @@
 			scheduleStatus = 'error';
 			return {};
 		}
-  return schedule[params.date.y].reduce(
-    (acc: { [key: string]: number }, cell: string, index: number) => {
-      const match = cell.match(/\b\d{2}\.\d{2}\.(\d{2}|\d{4})\b/);
-      const dateCell = match ? match[0] : null;
+		return schedule[params.date.y].reduce(
+			(acc: { [key: string]: number }, cell: string, index: number) => {
+				const match = cell.match(/\b\d{2}\.\d{2}\.(\d{2}|\d{4})\b/);
+				const dateCell = match ? match[0] : null;
 
-      if (index >= params.date.firstX && dateCell) {
-        if (/^\d{2}\.\d{2}\.\d{2}$/.test(dateCell)) {
-          acc[dateCell] = index;
-        } else if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateCell)) {
-          const shortDate = dateCell.replace(
-            /(\d{2}\.\d{2})\.(\d{4})/,
-            (_, d, y) => `${d}.${y.slice(-2)}`
-          );
-          acc[shortDate] = index;
-        }
-      }
+				if (index >= params.date.firstX && dateCell) {
+					if (/^\d{2}\.\d{2}\.\d{2}$/.test(dateCell)) {
+						acc[dateCell] = index;
+					} else if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateCell)) {
+						const shortDate = dateCell.replace(
+							/(\d{2}\.\d{2})\.(\d{4})/,
+							(_, d, y) => `${d}.${y.slice(-2)}`
+						);
+						acc[shortDate] = index;
+					}
+				}
 
-      return acc;
-    },
-    {}
-  );
+				return acc;
+			},
+			{}
+		);
 	};
 
 	const handleTeacherChange = async (saveLastQuery = true) => {
@@ -226,7 +226,14 @@
 		}
 
 		buildedSchedule = selectedDates.reduce((acc: Record<string, Lesson[]>, date) => {
-      const times = ['09:00 - 10:30', '10:40 - 12:10', '12:30 - 14:00', '14:20 - 15:50', '16:00 - 17:30', '17:40 - 19:10']
+			const times = [
+				'09:00 - 10:30',
+				'10:40 - 12:10',
+				'12:30 - 14:00',
+				'14:20 - 15:50',
+				'16:00 - 17:30',
+				'17:40 - 19:10'
+			];
 			if (!schedule) {
 				scheduleError = 'Error: Schedule is null';
 				scheduleStatus = 'error';
@@ -235,26 +242,22 @@
 
 			let lessons: Lesson[] = [];
 			if (dates[date]) {
-				for (
-					let i = 0;
-					i < params.teacher.step;
-					i += params.time.step
-				) {
-          let time = schedule[teacherOptions[selectedTeacher] + i][params.time.x]
-          if (time != undefined && time != "") time = times[i / 2]
-          const discipline = schedule[teacherOptions[selectedTeacher] + i][dates[date]]
-          const group = schedule[teacherOptions[selectedTeacher] + i + 1][dates[date]];
-          const auditorium = schedule[teacherOptions[selectedTeacher] + i][dates[date] + 3];
+				for (let i = 0; i < params.teacher.step; i += params.time.step) {
+					let time = schedule[teacherOptions[selectedTeacher] + i][params.time.x];
+					if (time != undefined && time != '') time = times[i / 2];
+					const discipline = schedule[teacherOptions[selectedTeacher] + i][dates[date]];
+					const group = schedule[teacherOptions[selectedTeacher] + i + 1][dates[date]];
+					const auditorium = schedule[teacherOptions[selectedTeacher] + i][dates[date] + 3];
 
-          if (discipline) {
-            lessons.push({
-              time: time || '',
-              discipline: discipline || '',
-              group: group || '',
-              auditorium: auditorium || ''
-            });
-          }
-        }
+					if (discipline) {
+						lessons.push({
+							time: time || '',
+							discipline: discipline || '',
+							group: group || '',
+							auditorium: auditorium || ''
+						});
+					}
+				}
 			}
 
 			acc[date] = lessons;

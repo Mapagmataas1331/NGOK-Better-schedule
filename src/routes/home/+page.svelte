@@ -123,6 +123,74 @@
 
 		<div class="mb-2 border-2 md:mb-4">
 			<h1
+				class="my-1 ml-2 text-lg font-semibold text-green-700 md:my-2 md:text-xl dark:text-green-400"
+			>
+				{$language === 'ru' ? 'Обновление 23.09.25' : 'Update 23.09.25'}
+			</h1>
+			<Separator />
+			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
+				<p class="mb-2 ml-1 p-px text-base font-medium md:text-lg">
+					{$language === 'ru' ? '🥳 Чинил чинил и починил!' : '🥳 Fixed, fixed, and finally fixed!'}
+				</p>
+				<p class="mb-2 p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Над обновлением сильно не старался, просто сделал так чтоб заработало.'
+						: 'I didn’t put much effort into the update, just made it work.'}
+				</p>
+				<p class="mb-2 p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Если интересно вникнуть в суть - читайте пост ниже.'
+						: 'If you’re curious about the details — read the post below.'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'А так, я выпустился из колледжа и ищу себе замену, а именно человека готового на вечные пытки и знающего какой нить frontend framework. Если кого-то заинтересовало - пишите.'
+						: 'By the way, I graduated from college and I’m looking for a replacement - someone ready for eternal torture and who knows any frontend framework. If anyone’s interested - reach out.'}
+				</p>
+			</div>
+		</div>
+
+		<div class="mb-2 border-2 md:mb-4">
+			<h1
+				class="my-1 ml-2 text-lg font-semibold text-yellow-700 md:my-2 md:text-xl dark:text-yellow-400"
+			>
+				{$language === 'ru' ? 'Поломка Нового Учебного года' : 'Issue with the new academic year'}
+			</h1>
+			<Separator />
+			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
+				<p class="mb-2 ml-1 p-px text-base font-medium md:text-lg">
+					{$language === 'ru' ? '💢 Значит рассказываю...' : '💢 So, let me explain…'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Поломка связана с тем что всё, как всегда в общем то, решили переделать.'
+						: 'The issue happened because, as always, they decided to redo everything.'}
+				</p>
+				<p class="mb-2 p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Я кстати не знаю зачем нужно расписание аудиторий, если надо - пишите постараюсь добавить.'
+						: 'By the way, I don’t really know why a classroom schedule is needed. If it is, write to me — I’ll try to add it.'}
+				</p>
+				<p class="mb-2 p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Так вот, история, я сдавал этот сайт как тему для диплома, и в последний день перед сдачей ребята меняют табличку, я тогда жеско перенервничал, но все же получил свой красный диплом.'
+						: 'Here’s the story: I submitted this site as my diploma project, and on the last day before submission, the guys changed the table. I was extremely stressed, but still managed to get my honors diploma.'}
+				</p>
+				<p class="mb-2 p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Всё лето я жестко отдыхал на море и немного работал, изначально я хотел опубликовать на сайте что ищу себе замену на заботу об этом сайте, но мне написали, что типо давай все сделаем елы палы, но в итоге пропали('
+						: 'All summer I chilled hard at the sea and did a bit of work. At first, I wanted to post on the site that I was looking for someone to take over its maintenance, but someone wrote to me like: ‘let’s do it, let’s fix everything!’ — and then they just disappeared.'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Собсна, как я вернулся времени у меня сильно не было. Но вот щас оно нашлось.'
+						: 'Basically, when I came back I didn’t really have time. But now I found some.'}
+				</p>
+			</div>
+		</div>
+
+		<div class="mb-2 border-2 md:mb-4">
+			<h1
 				class="my-1 ml-2 text-lg font-semibold text-yellow-700 md:my-2 md:text-xl dark:text-yellow-400"
 			>
 				{$language === 'ru' ? 'Поломка 04.06.25' : 'Issue 04.06.25'}

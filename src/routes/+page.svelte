@@ -30,13 +30,13 @@
 
 	const params = {
 		globalFirstY: 1,
-		date: { x: 0, firstY: 1, step: 2 * 6 },
-		lesNum: { x: 1, firstY: 1, step: 2 },
-		time: { x: 2, firstY: 1, step: 2 },
-		group: { y: 0, firstX: 3, step: 4 },
-		discipline: { firstX: 3, firstY: 1, step: 2 },
-		teacher: { firstX: 3, firstY: 2, step: 2 },
-		auditorium: { firstX: 4, firstY: 1, step: 2 }
+		date: { x: 0, firstY: 3, step: 2 * 6 },
+		lesNum: { x: 1, firstY: 3, step: 2 },
+		time: { x: 2, firstY: 3, step: 2 },
+		group: { y: 2, firstX: 3, step: 4 },
+		discipline: { firstX: 3, firstY: 3, step: 2 },
+		teacher: { firstX: 3, firstY: 4, step: 2 },
+		auditorium: { firstX: 4, firstY: 3, step: 2 }
 	};
 
 	type Lesson = {
@@ -237,10 +237,13 @@
 			scheduleStatus = 'error';
 			return {};
 		}
-		return schedule[0].reduce((acc: { [key: string]: number }, cell: string, index: number) => {
-			if (index >= params.group.firstX && cell && !acc[cell]) acc[cell] = index;
-			return acc;
-		}, {});
+		return schedule[params.group.y].reduce(
+			(acc: { [key: string]: number }, cell: string, index: number) => {
+				if (index >= params.group.firstX && cell && !acc[cell]) acc[cell] = index;
+				return acc;
+			},
+			{}
+		);
 	};
 
 	const extractDates = () => {
@@ -560,7 +563,7 @@
 						</Table.Header>
 						<Table.Body class="bg-background">
 							{#if day.length > 0}
-								{#if !day[0].time.startsWith('09:00')}
+								{#if !day[0].time.startsWith('09:00') && !day[0].time.startsWith('09.00')}
 									<Table.Row>
 										<Table.Cell class="text-center font-semibold italic" colspan={2}>
 											{$language === 'ru' ? 'Пары начинаются с' : 'Lessons start at'}

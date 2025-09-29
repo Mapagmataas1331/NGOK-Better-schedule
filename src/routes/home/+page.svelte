@@ -125,6 +125,30 @@
 			<h1
 				class="my-1 ml-2 text-lg font-semibold text-green-700 md:my-2 md:text-xl dark:text-green-400"
 			>
+				{$language === 'ru' ? 'Обновление 29.09.25' : 'Update 29.09.25'}
+			</h1>
+			<Separator />
+			<div class="flex w-full flex-col p-2 pb-4 md:p-4 md:pb-6">
+				<p class="mb-2 ml-1 p-px text-base font-medium md:text-lg">
+					{$language === 'ru' ? '☹️ Пришлось постараться...' : '☹️ Had to put in some work...'}
+				</p>
+				<p class="mb-2 p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Оказывается колледж теперь переделывае расписание еженедельно(.'
+						: 'Turns out the college is now remaking the schedule every week (.'}
+				</p>
+				<p class="p-px text-sm font-normal md:text-base">
+					{$language === 'ru'
+						? 'Пришлось делать новую систему добычи расписания из таблицы, если формат самих табличек не будет меняться, то у вас будет последнее расписание.'
+						: 'Had to build a new system to fetch schedules from the table. As long as the format of the tables doesn’t change, you will always see the latest schedule.'}
+				</p>
+			</div>
+		</div>
+
+		<div class="mb-2 border-2 md:mb-4">
+			<h1
+				class="my-1 ml-2 text-lg font-semibold text-green-700 md:my-2 md:text-xl dark:text-green-400"
+			>
 				{$language === 'ru' ? 'Обновление 23.09.25' : 'Update 23.09.25'}
 			</h1>
 			<Separator />

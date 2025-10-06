@@ -129,7 +129,8 @@ const getSheetName = async (type: 'student' | 'teacher' | 'auditorium'): Promise
 			filterFn = (t) =>
 				fuzzyIncludes(t, 'расписание') &&
 				!fuzzyIncludes(t, 'преподав') &&
-				!fuzzyIncludes(t, 'аудитор');
+				!fuzzyIncludes(t, 'аудитор') &&
+				!fuzzyIncludes(t, 'пересдач');
 		} else if (type === 'teacher') {
 			filterFn = (t) => fuzzyIncludes(t, 'расписание') && fuzzyIncludes(t, 'преподав');
 		} else {
